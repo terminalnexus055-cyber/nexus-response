@@ -1,4 +1,7 @@
 flask
 twilio
 gunicorn
+supabase
+python-dotenv
+
 

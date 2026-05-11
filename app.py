@@ -11,10 +11,15 @@ logger = logging.getLogger("NexusEngine")
 
 app = Flask(__name__)
 
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
-TWILIO_SID = os.environ.get("TWILIO_SID")
-TWILIO_AUTH = os.environ.get("TWILIO_AUTH")
+def clean_env(value):
+    if value is None:
+        return value
+    return ''.join(char for char in value if ord(char) < 128)
+
+SUPABASE_URL = clean_env(os.environ.get("SUPABASE_URL"))
+SUPABASE_KEY = clean_env(os.environ.get("SUPABASE_SERVICE_ROLE_KEY"))
+TWILIO_SID = clean_env(os.environ.get("TWILIO_SID"))
+TWILIO_AUTH = clean_env(os.environ.get("TWILIO_AUTH"))
 
 supabase: SupabaseClient = create_client(SUPABASE_URL, SUPABASE_KEY)
 twilio_client = Client(TWILIO_SID, TWILIO_AUTH)

@@ -2,16 +2,12 @@ name: Nexus Heartbeat
 
 on:
   schedule:
-    # Runs every 10 minutes to keep Render awake
     - cron: '*/10 * * * *'
-  workflow_dispatch: # Allows you to trigger it manually for testing
+  workflow_dispatch:
 
 jobs:
-  ping_server:
+  ping:
     runs-on: ubuntu-latest
     steps:
-      - name: Sending Heartbeat
-        run: |
-          curl -s https://nexus-response.onrender.com/webhook > /dev/null
-          echo "Heartbeat sent successfully at $(date)"
-          
+      - name: Ping Nexus Server
+        run: curl -X POST https://nexus-response.onrender.com/webhook

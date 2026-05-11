@@ -1,47 +1,84 @@
 import os
+import logging
 from flask import Flask, request
+from twilio.twiml.voice_response import VoiceResponse
 from twilio.rest import Client
-from supabase import create_client
+from supabase import create_client, Client as SupabaseClient
 
+# 1. Logging & Flask Setup
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("NexusEngine")
 app = Flask(__name__)
 
-# Credentials from Render Env
-supabase = create_client(os.environ.get("SUPABASE_URL"), os.environ.get("SUPABASE_SERVICE_ROLE_KEY"))
-twilio_client = Client(os.environ.get("TWILIO_SID"), os.environ.get("TWILIO_AUTH"))
+# 2. Infrastructure Credentials
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_ROLE_KEY")
+TWILIO_SID = os.environ.get("TWILIO_SID")
+TWILIO_AUTH = os.environ.get("TWILIO_AUTH")
 
-@app.route("/webhook", methods=['POST'])
-def webhook():
-    to_num = request.form.get('To')   # The Merchant's Twilio Number
-    from_num = request.form.get('From') # Your Personal Phone Number
+# Initialize Clients
+supabase: SupabaseClient = create_client(SUPABASE_URL, SUPABASE_KEY)
+twilio_client = Client(TWILIO_SID, TWILIO_AUTH)
 
-    # 1. Pipeline Test: Database Lookup
+@app.route("/", methods=['GET'])
+def health_check():
+    """Fixes the 404 and allows the GitHub Heartbeat to verify life."""
+    return "Nexus System: Online and Guarding.", 200
+
+@app.route("/test-db", methods=['GET'])
+def test_db():
+    """Diagnostic route to ensure Render can talk to Supabase."""
     try:
-        merchant = supabase.table("clients").select("*").eq("twilio_number", to_num).single().execute()
+        res = supabase.table("clients").select("id").limit(1).execute()
+        return f"Database Connection: SUCCESS. Found {len(res.data)} clients.", 200
+    except Exception as e:
+        logger.error(f"DB Test Failed: {str(e)}")
+        return f"Database Connection: FAILED. Check your Render Environment Variables.", 500
+
+@app.route("/voice", methods=['POST'])
+def handle_voice():
+    """The entry point for a missed call forwarded to Twilio."""
+    to_num = request.form.get('To')   # The Merchant's Twilio Number
+    from_num = request.form.get('From') # The Lead's Phone Number
+
+    # Reject call to save money; it still triggers this webhook
+    response = VoiceResponse()
+    response.reject()
+
+    # Database Lookup for the Merchant
+    try:
+        client_query = supabase.table("clients").select("*").eq("twilio_number", to_num).single().execute()
         
-        if merchant.data:
-            biz_name = merchant.data['business_name']
-            # 2. Log the event in the 'leads' table
-            supabase.table("leads").upsert({
-                "lead_phone": from_num, 
-                "status": "pipeline_test_active"
-            }).execute()
+        if client_query.data:
+            merchant = client_query.data
+            biz_name = merchant.get('business_name', 'our team')
             
-            response_text = f"Nexus System Check: You have reached the elite assistant for {biz_name}. Our pipeline is 100% active."
+            # Log the Lead
+            supabase.table("leads").upsert({
+                "client_id": merchant['id'],
+                "lead_phone": from_num,
+                "status": "new_lead"
+            }).execute()
+
+            # Send the Intake SMS
+            body_text = f"Hi! This is the assistant for {biz_name}. We missed your call. How can we help you today?"
+            twilio_client.messages.create(body=body_text, from_=to_num, to=from_num)
+            logger.info(f"Sent text to {from_num} for {biz_name}")
         else:
-            response_text = "Nexus System Check: Number received, but not found in Supabase clients table."
+            logger.warning(f"No merchant found for number: {to_num}")
 
     except Exception as e:
-        response_text = f"Nexus System Check: Error connecting to Supabase: {str(e)}"
+        logger.error(f"Error in Voice Webhook: {str(e)}")
 
-    # 3. Send the response via Twilio
-    twilio_client.messages.create(
-        body=response_text,
-        from_=to_num,
-        to=from_num
-    )
+    return str(response)
 
-    return "OK", 200
+@app.route("/webhook", methods=['POST'])
+def heartbeat_endpoint():
+    """Endpoint for the GitHub Action to ping every 10 minutes."""
+    return "Heartbeat Received", 200
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=10000)
-    
+    # Use Render's default port 10000 or fallback to 8000
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+            

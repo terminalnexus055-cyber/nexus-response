@@ -3,5 +3,6 @@ twilio
 gunicorn
 supabase
 python-dotenv
+groq
 
 

@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus — See It Live In 10 Seconds</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080810;
+  --surface: #0f0f1a;
+  --surface2: #14142a;
+  --border: rgba(255,255,255,0.06);
+  --accent: #7c6fff;
+  --accent2: #4facfe;
+  --green: #00f5a0;
+  --red: #ff4d6d;
+  --text: #f0f0ff;
+  --muted: #6b6b8a;
+  --font: 'Syne', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+/* Ambient */
+.ambient {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+}
+.ambient-1 {
+  top: -300px; left: 50%;
+  transform: translateX(-50%);
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(124,111,255,0.12) 0%, transparent 65%);
+}
+.ambient-2 {
+  bottom: -200px; right: -100px;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(79,172,254,0.08) 0%, transparent 65%);
+}
+
+/* Nav */
+nav {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 48px;
+  position: relative;
+  z-index: 1;
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-logo-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+
+.nav-logo-text {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav-tagline {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 80px 24px 48px;
+  max-width: 680px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(124,111,255,0.08);
+  border: 1px solid rgba(124,111,255,0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--accent);
+  margin-bottom: 28px;
+  letter-spacing: 0.5px;
+}
+
+.hero-badge-dot {
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.hero-title {
+  font-size: clamp(36px, 6vw, 56px);
+  font-weight: 800;
+  line-height: 1.05;
+  margin-bottom: 20px;
+  letter-spacing: -1px;
+}
+
+.hero-title span {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-sub {
+  font-size: 17px;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 500px;
+  margin: 0 auto 16px;
+}
+
+.hero-stat {
+  font-size: 13px;
+  font-family: var(--mono);
+  color: var(--muted);
+}
+
+.hero-stat strong {
+  color: var(--green);
+}
+
+/* Demo card */
+.demo-wrap {
+  width: 100%;
+  max-width: 560px;
+  padding: 0 24px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.demo-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 40px 120px rgba(0,0,0,0.4);
+}
+
+.demo-card-header {
+  padding: 28px 32px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.demo-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.demo-card-sub {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.demo-card-body {
+  padding: 28px 32px;
+}
+
+/* Step indicator */
+.steps-indicator {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 28px;
+}
+
+.step-dot {
+  height: 3px;
+  flex: 1;
+  border-radius: 2px;
+  background: var(--surface2);
+  transition: background 0.4s;
+}
+
+.step-dot.active { background: var(--accent); }
+.step-dot.done { background: var(--green); }
+
+/* Step 1: Industry */
+#step-1 { display: block; }
+#step-2 { display: none; }
+#step-3 { display: none; }
+
+.step-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-family: var(--mono);
+  margin-bottom: 14px;
+}
+
+.industry-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.industry-btn {
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.industry-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(124,111,255,0.08), rgba(79,172,254,0.08));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.industry-btn:hover::before,
+.industry-btn.selected::before { opacity: 1; }
+
+.industry-btn.selected {
+  border-color: var(--accent);
+}
+
+.industry-btn.selected .industry-check {
+  opacity: 1;
+}
+
+.industry-check {
+  position: absolute;
+  top: 10px; right: 10px;
+  width: 18px; height: 18px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.industry-icon { font-size: 28px; margin-bottom: 8px; }
+
+.industry-name {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.industry-example {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+/* Step 2: Phone */
+.phone-input-wrap {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.phone-flag {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  pointer-events: none;
+}
+
+.phone-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 16px 16px 48px;
+  color: var(--text);
+  font-size: 16px;
+  font-family: var(--mono);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.phone-input:focus {
+  border-color: var(--accent);
+}
+
+.phone-input::placeholder { color: var(--muted); }
+
+.phone-note {
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: var(--mono);
+}
+
+/* Primary button */
+.primary-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none;
+  border-radius: 12px;
+  padding: 18px;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.primary-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.primary-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.primary-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 0; height: 0;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s, height 0.4s;
+}
+
+.primary-btn:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+.back-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  color: var(--muted);
+  font-size: 14px;
+  font-family: var(--font);
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  color: var(--text);
+  border-color: rgba(255,255,255,0.12);
+}
+
+/* Step 3: Success */
+.success-wrap {
+  text-align: center;
+  padding: 16px 0;
+}
+
+.success-animation {
+  width: 80px; height: 80px;
+  margin: 0 auto 24px;
+  background: rgba(0,245,160,0.1);
+  border: 2px solid rgba(0,245,160,0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  animation: successPop 0.5s ease;
+}
+
+@keyframes successPop {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.success-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--green);
+  margin-bottom: 10px;
+}
+
+.success-sub {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+.success-instruction {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+
+.instruction-step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
+.instruction-step:last-child { margin-bottom: 0; }
+
+.instruction-num {
+  width: 24px; height: 24px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.instruction-text {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.instruction-text strong { color: var(--text); }
+
+.restart-btn {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  color: var(--muted);
+  font-size: 14px;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.restart-btn:hover {
+  color: var(--text);
+  border-color: rgba(255,255,255,0.12);
+}
+
+/* How it works */
+.how-section {
+  width: 100%;
+  max-width: 800px;
+  padding: 0 24px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.how-title {
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 32px;
+}
+
+.how-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.how-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.how-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 60px; height: 60px;
+  border-radius: 60px 0 16px 0;
+  opacity: 0.04;
+}
+
+.how-card:nth-child(1)::after { background: var(--accent); }
+.how-card:nth-child(2)::after { background: var(--accent2); }
+.how-card:nth-child(3)::after { background: var(--green); }
+
+.how-num {
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--accent);
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.how-icon { font-size: 28px; margin-bottom: 12px; }
+
+.how-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.how-card-text {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.how-connector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 20px;
+  padding-top: 12px;
+}
+
+@media (max-width: 640px) {
+  nav { padding: 20px 24px; }
+  .nav-tagline { display: none; }
+  .how-grid { grid-template-columns: 1fr; }
+  .demo-card-body { padding: 24px 20px; }
+  .demo-card-header { padding: 24px 20px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="ambient ambient-1"></div>
+<div class="ambient ambient-2"></div>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">⚡</div>
+    <div class="nav-logo-text">NEXUS</div>
+  </div>
+  <div class="nav-tagline">MISSED CALL INTELLIGENCE</div>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">
+    <div class="hero-badge-dot"></div>
+    Live Demo — No signup required
+  </div>
+  <h1 class="hero-title">Your missed calls are<br><span>costing you thousands.</span></h1>
+  <p class="hero-sub">Nexus responds to every missed call in under 10 seconds — qualifying the lead, handling the conversation, and booking the appointment automatically.</p>
+  <div class="hero-stat">Average business loses <strong>$156,000/year</strong> to missed calls.</div>
+</div>
+
+<!-- Demo Card -->
+<div class="demo-wrap">
+  <div class="demo-card">
+    <div class="demo-card-header">
+      <div class="demo-card-title">Experience It On Your Phone</div>
+      <div class="demo-card-sub">Enter your number and we'll send you the exact SMS your missed call leads receive — live, right now.</div>
+    </div>
+    <div class="demo-card-body">
+
+      <!-- Step indicator -->
+      <div class="steps-indicator">
+        <div class="step-dot active" id="dot-1"></div>
+        <div class="step-dot" id="dot-2"></div>
+        <div class="step-dot" id="dot-3"></div>
+      </div>
+
+      <!-- Step 1: Industry -->
+      <div id="step-1">
+        <div class="step-label">Step 1 — Pick your industry</div>
+        <div class="industry-grid">
+          <div class="industry-btn" onclick="selectIndustry('dentist', this)">
+            <div class="industry-check">✓</div>
+            <div class="industry-icon">🦷</div>
+            <div class="industry-name">Dental</div>
+            <div class="industry-example">Practice / Clinic</div>
+          </div>
+          <div class="industry-btn" onclick="selectIndustry('plumber', this)">
+            <div class="industry-check">✓</div>
+            <div class="industry-icon">🔧</div>
+            <div class="industry-name">Plumbing</div>
+            <div class="industry-example">Residential / Commercial</div>
+          </div>
+          <div class="industry-btn" onclick="selectIndustry('lawyer', this)">
+            <div class="industry-check">✓</div>
+            <div class="industry-icon">⚖️</div>
+            <div class="industry-name">Legal</div>
+            <div class="industry-example">Law Firm / Attorney</div>
+          </div>
+          <div class="industry-btn" onclick="selectIndustry('realestate', this)">
+            <div class="industry-check">✓</div>
+            <div class="industry-icon">🏠</div>
+            <div class="industry-name">Real Estate</div>
+            <div class="industry-example">Agent / Brokerage</div>
+          </div>
+          <div class="industry-btn" onclick="selectIndustry('medspa', this)">
+            <div class="industry-check">✓</div>
+            <div class="industry-icon">💆</div>
+            <div class="industry-name">Med Spa</div>
+            <div class="industry-example">Aesthetics / Wellness</div>
+          </div>
+          <div class="industry-btn" onclick="selectIndustry('hvac', this)">
+            <div class="industry-check">✓</div>
+            <div class="industry-icon">❄️</div>
+            <div class="industry-name">HVAC</div>
+            <div class="industry-example">Heating / Cooling</div>
+          </div>
+        </div>
+        <button class="primary-btn" id="next-btn-1" onclick="goToStep2()" disabled>
+          Continue →
+        </button>
+      </div>
+
+      <!-- Step 2: Phone -->
+      <div id="step-2">
+        <div class="step-label">Step 2 — Enter your number</div>
+        <div class="phone-input-wrap">
+          <span class="phone-flag">📱</span>
+          <input
+            class="phone-input"
+            id="phone-input"
+            type="tel"
+            placeholder="+1 555 000 0000"
+            oninput="validatePhone()"
+          />
+        </div>
+        <div class="phone-note">Include country code · e.g. +1 for US, +44 for UK</div>
+        <button class="primary-btn" id="send-btn" onclick="startDemo()" disabled>
+          Send Me The Demo ⚡
+        </button>
+        <button class="back-btn" onclick="goToStep1()">← Back</button>
+      </div>
+
+      <!-- Step 3: Success -->
+      <div id="step-3">
+        <div class="success-wrap">
+          <div class="success-animation">📱</div>
+          <div class="success-title">Check Your Phone!</div>
+          <div class="success-sub">Your demo is live. Reply to the SMS just like a real lead would.</div>
+          <div class="success-instruction">
+            <div class="instruction-step">
+              <div class="instruction-num">1</div>
+              <div class="instruction-text"><strong>Check your SMS</strong> — the triage message just landed on your phone.</div>
+            </div>
+            <div class="instruction-step">
+              <div class="instruction-num">2</div>
+              <div class="instruction-text"><strong>Reply with 1, 2, or 3</strong> to select an option and start the AI conversation.</div>
+            </div>
+            <div class="instruction-step">
+              <div class="instruction-num">3</div>
+              <div class="instruction-text"><strong>Answer naturally</strong> — the AI handles your inquiry, books appointments, and escalates emergencies automatically.</div>
+            </div>
+          </div>
+          <button class="restart-btn" onclick="restart()">Try Another Industry</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- How It Works -->
+<div class="how-section">
+  <div class="how-title">How Nexus Works</div>
+  <div class="how-grid">
+    <div class="how-card">
+      <div class="how-num">01</div>
+      <div class="how-icon">📞</div>
+      <div class="how-card-title">Lead Calls. Nobody Answers.</div>
+      <div class="how-card-text">A potential client calls your business line. Your team is busy, unavailable, or closed.</div>
+    </div>
+    <div class="how-card">
+      <div class="how-num">02</div>
+      <div class="how-icon">⚡</div>
+      <div class="how-card-title">Nexus Responds In 10 Seconds.</div>
+      <div class="how-card-text">Automatically sends a personalized SMS, presents triage options, and starts an intelligent conversation.</div>
+    </div>
+    <div class="how-card">
+      <div class="how-num">03</div>
+      <div class="how-icon">✅</div>
+      <div class="how-card-title">Lead Qualified. Appointment Booked.</div>
+      <div class="how-card-text">The AI collects details, books the appointment, and alerts you for emergencies — before they call your competitor.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let selectedIndustry = '';
+
+function selectIndustry(industry, el) {
+  document.querySelectorAll('.industry-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedIndustry = industry;
+  document.getElementById('next-btn-1').disabled = false;
+}
+
+function validatePhone() {
+  const val = document.getElementById('phone-input').value.trim();
+  document.getElementById('send-btn').disabled = val.length < 8;
+}
+
+function goToStep2() {
+  if (!selectedIndustry) return;
+  document.getElementById('step-1').style.display = 'none';
+  document.getElementById('step-2').style.display = 'block';
+  document.getElementById('dot-1').classList.remove('active');
+  document.getElementById('dot-1').classList.add('done');
+  document.getElementById('dot-2').classList.add('active');
+  document.getElementById('phone-input').focus();
+}
+
+function goToStep1() {
+  document.getElementById('step-2').style.display = 'none';
+  document.getElementById('step-1').style.display = 'block';
+  document.getElementById('dot-2').classList.remove('active');
+  document.getElementById('dot-1').classList.remove('done');
+  document.getElementById('dot-1').classList.add('active');
+}
+
+async function startDemo() {
+  const phone = document.getElementById('phone-input').value.trim();
+  if (!phone || !selectedIndustry) return;
+
+  const btn = document.getElementById('send-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  const formData = new FormData();
+  formData.append('industry', selectedIndustry);
+  formData.append('phone', phone);
+
+  try {
+    const res = await fetch('/demo/start', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if (data.success) {
+      document.getElementById('step-2').style.display = 'none';
+      document.getElementById('step-3').style.display = 'block';
+      document.getElementById('dot-2').classList.remove('active');
+      document.getElementById('dot-2').classList.add('done');
+      document.getElementById('dot-3').classList.add('active', 'done');
+    } else {
+      alert('Could not send demo: ' + (data.error || 'Unknown error'));
+      btn.disabled = false;
+      btn.textContent = 'Send Me The Demo ⚡';
+    }
+  } catch(e) {
+    alert('Network error. Please try again.');
+    btn.disabled = false;
+    btn.textContent = 'Send Me The Demo ⚡';
+  }
+}
+
+function restart() {
+  selectedIndustry = '';
+  document.querySelectorAll('.industry-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('next-btn-1').disabled = true;
+  document.getElementById('phone-input').value = '';
+  document.getElementById('send-btn').disabled = true;
+
+  document.getElementById('step-3').style.display = 'none';
+  document.getElementById('step-2').style.display = 'none';
+  document.getElementById('step-1').style.display = 'block';
+
+  ['dot-1','dot-2','dot-3'].forEach(id => {
+    document.getElementById(id).classList.remove('active','done');
+  });
+  document.getElementById('dot-1').classList.add('active');
+  document.getElementById('send-btn').textContent = 'Send Me The Demo ⚡';
+}
+</script>
+</body>
+</html>

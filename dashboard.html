@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus — {{ merchant.business_name }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080810;
+  --surface: #0f0f1a;
+  --surface2: #14142a;
+  --border: rgba(255,255,255,0.06);
+  --accent: #7c6fff;
+  --accent2: #4facfe;
+  --green: #00f5a0;
+  --red: #ff4d6d;
+  --amber: #ffd166;
+  --text: #f0f0ff;
+  --muted: #6b6b8a;
+  --font: 'Syne', sans-serif;
+  --mono: 'DM Mono', monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Ambient background */
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px;
+  left: -200px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(124,111,255,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -200px;
+  right: -200px;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(79,172,254,0.06) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: 240px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 20px;
+  z-index: 10;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.biz-name {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 32px;
+  padding-left: 4px;
+  letter-spacing: 0.5px;
+}
+
+.nav-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+  padding-left: 12px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 4px;
+  text-decoration: none;
+}
+
+.nav-item.active {
+  background: rgba(124,111,255,0.12);
+  color: var(--accent);
+}
+
+.nav-item:hover:not(.active) {
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+}
+
+.nav-icon { font-size: 16px; }
+
+.sidebar-footer {
+  margin-top: auto;
+}
+
+.trial-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.trial-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.trial-days {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--green);
+}
+
+.trial-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.trial-bar {
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.trial-bar-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 2px;
+  transition: width 1s ease;
+}
+
+/* Main */
+.main {
+  margin-left: 240px;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+}
+
+/* Topbar */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 36px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(8,8,16,0.8);
+  backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.topbar-greeting {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.topbar-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.topbar-sub span {
+  color: var(--accent2);
+  font-weight: 600;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,245,160,0.08);
+  border: 1px solid rgba(0,245,160,0.2);
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+  font-family: var(--mono);
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.refresh-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.refresh-btn:hover {
+  color: var(--text);
+  border-color: rgba(255,255,255,0.12);
+}
+
+/* Content */
+.content {
+  padding: 36px;
+}
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255,255,255,0.1);
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 80px; height: 80px;
+  border-radius: 0 16px 0 80px;
+  opacity: 0.06;
+}
+
+.stat-card:nth-child(1)::before { background: var(--accent); }
+.stat-card:nth-child(2)::before { background: var(--accent2); }
+.stat-card:nth-child(3)::before { background: var(--green); }
+.stat-card:nth-child(4)::before { background: var(--amber); }
+
+.stat-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
+  font-family: var(--mono);
+}
+
+.stat-value {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.stat-card:nth-child(1) .stat-value { color: var(--accent); }
+.stat-card:nth-child(2) .stat-value { color: var(--accent2); }
+.stat-card:nth-child(3) .stat-value { color: var(--green); }
+.stat-card:nth-child(4) .stat-value { color: var(--amber); }
+
+.stat-trend {
+  font-size: 12px;
+  color: var(--green);
+  font-family: var(--mono);
+  font-weight: 500;
+}
+
+.stat-sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Leads section */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.section-sub {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-top: 2px;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.filter-tab {
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--muted);
+  font-family: var(--mono);
+  border: none;
+  background: transparent;
+}
+
+.filter-tab.active {
+  background: var(--accent);
+  color: white;
+}
+
+.filter-tab:hover:not(.active) {
+  color: var(--text);
+}
+
+/* Leads table */
+.leads-table {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.table-head {
+  display: grid;
+  grid-template-columns: 48px 1.2fr 1fr 1.4fr 1fr 0.8fr;
+  padding: 14px 24px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-family: var(--mono);
+}
+
+.lead-row {
+  display: grid;
+  grid-template-columns: 48px 1.2fr 1fr 1.4fr 1fr 0.8fr;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.lead-row:last-child { border-bottom: none; }
+
+.lead-row:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+.lead-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+}
+
+.lead-phone {
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--mono);
+  color: var(--text);
+}
+
+.lead-time {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+.triage-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--mono);
+  background: rgba(124,111,255,0.1);
+  color: var(--accent);
+  border: 1px solid rgba(124,111,255,0.2);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--mono);
+  letter-spacing: 0.5px;
+}
+
+.status-badge.new_lead {
+  background: rgba(107,107,138,0.15);
+  color: var(--muted);
+  border: 1px solid rgba(107,107,138,0.2);
+}
+
+.status-badge.in_progress {
+  background: rgba(79,172,254,0.1);
+  color: var(--accent2);
+  border: 1px solid rgba(79,172,254,0.2);
+}
+
+.status-badge.qualified {
+  background: rgba(0,245,160,0.1);
+  color: var(--green);
+  border: 1px solid rgba(0,245,160,0.2);
+}
+
+.view-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: var(--font);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 64px 24px;
+}
+
+.empty-icon {
+  font-size: 52px;
+  margin-bottom: 16px;
+  opacity: 0.4;
+}
+
+.empty-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+
+.empty-sub {
+  font-size: 14px;
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modalIn 0.25s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.modal-meta {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-top: 3px;
+}
+
+.modal-close {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  color: var(--text);
+  border-color: rgba(255,255,255,0.15);
+}
+
+.modal-body {
+  padding: 24px 28px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.chat-msg {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-msg.user { align-items: flex-end; }
+.chat-msg.assistant { align-items: flex-start; }
+
+.chat-bubble {
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 80%;
+}
+
+.chat-msg.user .chat-bubble {
+  background: rgba(124,111,255,0.15);
+  border: 1px solid rgba(124,111,255,0.2);
+  color: var(--text);
+  border-bottom-right-radius: 4px;
+}
+
+.chat-msg.assistant .chat-bubble {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-bottom-left-radius: 4px;
+}
+
+.chat-role {
+  font-size: 10px;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-bottom: 4px;
+  padding: 0 4px;
+}
+
+.no-chat {
+  text-align: center;
+  padding: 32px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .sidebar { width: 200px; }
+  .main { margin-left: 200px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; }
+  .content { padding: 20px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .table-head, .lead-row { grid-template-columns: 36px 1fr 1fr 0.8fr; }
+  .table-head span:nth-child(4),
+  .table-head span:nth-child(5),
+  .lead-row > *:nth-child(4),
+  .lead-row > *:nth-child(5) { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-text">NEXUS</div>
+  </div>
+  <div class="biz-name">{{ merchant.business_name | upper }}</div>
+
+  <div class="nav-label">Menu</div>
+  <a class="nav-item active" href="#">
+    <span class="nav-icon">⬡</span> Dashboard
+  </a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">◎</span> Leads
+  </a>
+  <a class="nav-item" href="#">
+    <span class="nav-icon">◈</span> Settings
+  </a>
+
+  <div class="sidebar-footer">
+    <div class="trial-box">
+      <div class="trial-label">Trial Period</div>
+      <div class="trial-days" id="trial-days">—</div>
+      <div class="trial-sub">days remaining</div>
+      <div class="trial-bar">
+        <div class="trial-bar-fill" id="trial-bar-fill" style="width:100%"></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-greeting">Good to see you, {{ merchant.business_name.split()[0] }}.</div>
+      <div class="topbar-sub">Nexus has handled <span id="total-count">—</span> inbound leads for you.</div>
+    </div>
+    <div class="topbar-actions">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        LIVE
+      </div>
+      <button class="refresh-btn" onclick="location.reload()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Leads Captured</div>
+        <div class="stat-value" id="s-total">{{ leads | length }}</div>
+        <div class="stat-sub">All time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">In Progress</div>
+        <div class="stat-value" id="s-progress">{{ leads | selectattr('status', 'equalto', 'in_progress') | list | length }}</div>
+        <div class="stat-sub">Active conversations</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Qualified</div>
+        <div class="stat-value" id="s-qualified">{{ leads | selectattr('status', 'equalto', 'qualified') | list | length }}</div>
+        <div class="stat-sub">Bookings confirmed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Revenue Protected</div>
+        <div class="stat-value" id="s-revenue">${{ leads | length * 300 }}</div>
+        <div class="stat-sub">Est. at $300/lead</div>
+      </div>
+    </div>
+
+    <!-- Leads -->
+    <div class="section-header">
+      <div>
+        <div class="section-title">Inbound Leads</div>
+        <div class="section-sub">Live · synced on load</div>
+      </div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterLeads('all', this)">All</button>
+        <button class="filter-tab" onclick="filterLeads('in_progress', this)">Active</button>
+        <button class="filter-tab" onclick="filterLeads('qualified', this)">Qualified</button>
+        <button class="filter-tab" onclick="filterLeads('new_lead', this)">New</button>
+      </div>
+    </div>
+
+    <div class="leads-table">
+      {% if leads %}
+      <div class="table-head">
+        <span></span>
+        <span>Phone</span>
+        <span>Captured</span>
+        <span>Triage</span>
+        <span>Status</span>
+        <span></span>
+      </div>
+      <div id="leads-body">
+        {% for lead in leads %}
+        <div class="lead-row" data-status="{{ lead.status or 'new_lead' }}" onclick="openModal('{{ lead.id }}')">
+          <div class="lead-avatar">{{ lead.lead_phone[-2:] }}</div>
+          <div>
+            <div class="lead-phone">{{ lead.lead_phone }}</div>
+          </div>
+          <div class="lead-time">
+            {% if lead.created_at %}
+              {{ lead.created_at[:10] }}<br>{{ lead.created_at[11:16] }} UTC
+            {% else %}—{% endif %}
+          </div>
+          <div>
+            <span class="triage-tag">{{ lead.triage_selection or 'Pending' }}</span>
+          </div>
+          <div>
+            <span class="status-badge {{ lead.status or 'new_lead' }}">
+              {% if lead.status == 'in_progress' %}● Active
+              {% elif lead.status == 'qualified' %}✓ Qualified
+              {% else %}· New{% endif %}
+            </span>
+          </div>
+          <div>
+            <button class="view-btn" onclick="event.stopPropagation(); openModal('{{ lead.id }}')">View</button>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">📞</div>
+        <div class="empty-title">Safety net is active</div>
+        <div class="empty-sub">Leads will appear here the moment a call comes in.</div>
+      </div>
+      {% endif %}
+    </div>
+
+  </div>
+</main>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modal-phone">Conversation</div>
+        <div class="modal-meta" id="modal-meta">—</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+const leads = {{ leads | tojson }};
+const trialExpires = "{{ merchant.trial_expires or '' }}";
+const token = "{{ request.path.split('/')[-1] }}";
+
+// Trial countdown
+if (trialExpires) {
+  const expiry = new Date(trialExpires);
+  const now = new Date();
+  const daysLeft = Math.ceil((expiry - now) / (1000 * 60 * 60 * 24));
+  const totalDays = 30;
+  document.getElementById('trial-days').textContent = Math.max(0, daysLeft);
+  const pct = Math.max(0, Math.min(100, (daysLeft / totalDays) * 100));
+  document.getElementById('trial-bar-fill').style.width = pct + '%';
+  if (daysLeft < 7) {
+    document.getElementById('trial-days').style.color = 'var(--red)';
+    document.getElementById('trial-bar-fill').style.background = 'var(--red)';
+  }
+} else {
+  document.getElementById('trial-days').textContent = '∞';
+}
+
+// Total count
+document.getElementById('total-count').textContent = leads.length;
+
+// Filter
+function filterLeads(status, btn) {
+  document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.lead-row').forEach(row => {
+    if (status === 'all' || row.dataset.status === status) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+}
+
+// Modal
+function openModal(id) {
+  const lead = leads.find(l => l.id === id);
+  if (!lead) return;
+
+  document.getElementById('modal-phone').textContent = lead.lead_phone;
+  document.getElementById('modal-meta').textContent =
+    (lead.triage_selection || 'No selection') + ' · ' + (lead.status || 'new_lead').replace('_', ' ');
+
+  let html = '';
+  try {
+    const history = typeof lead.chat_history === 'string'
+      ? JSON.parse(lead.chat_history)
+      : (lead.chat_history || []);
+
+    if (!history || history.length === 0) {
+      html = '<div class="no-chat">No conversation recorded yet.</div>';
+    } else {
+      history.forEach(msg => {
+        html += `
+          <div class="chat-msg ${msg.role}">
+            <div class="chat-role">${msg.role === 'user' ? 'Lead' : 'Nexus AI'}</div>
+            <div class="chat-bubble">${msg.content}</div>
+          </div>`;
+      });
+    }
+  } catch(e) {
+    html = '<div class="no-chat">Could not load conversation.</div>';
+  }
+
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('modal-overlay')) {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+}
+</script>
+</body>
+</html>

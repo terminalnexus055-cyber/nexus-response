@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus — Revenue Recovery System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo+Black&family=DM+Sans:wght@300;400;500&family=IBM+Plex+Mono:wght@300;400;500&family=Cormorant+Garamond:ital,wght@0,600;1,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+
+:root {
+  --black: #05030A;
+  --surface: #0F0D16;
+  --surface-light: #1A1823;
+  --gold: #D4AF37;
+  --gold-bright: #E5C158;
+  --gold-dim: rgba(212,175,55,0.12);
+  --gold-glow: rgba(212,175,55,0.25);
+  --orange: #FF6B35;
+  --white: #F9F7F4;
+  --white-dim: #E8E5E0;
+  --muted: rgba(244,240,232,0.4);
+  --muted-deep: rgba(244,240,232,0.25);
+  --dim: rgba(244,240,232,0.08);
+  --accent-cyan: #00D9FF;
+  --mono: 'IBM Plex Mono', monospace;
+  --display: 'Archivo Black', sans-serif;
+  --body: 'DM Sans', sans-serif;
+}
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--body);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top:0; left:0; right:0; z-index:100;
+  display: flex; align-items:center; justify-content:space-between;
+  padding: 24px 64px;
+  background: linear-gradient(180deg, rgba(5,3,10,0.96) 0%, rgba(5,3,10,0.85) 50%, transparent 100%);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(212,175,55,0.05);
+}
+.nav-logo {
+  font-family: var(--mono);
+  font-size: 13px; letter-spacing: 6px; color: var(--white);
+  font-weight: 400;
+}
+.nav-right {
+  display: flex; align-items:center; gap:32px;
+}
+.nav-link {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 3px; color: var(--muted-deep);
+  text-transform: uppercase; cursor:pointer;
+  transition: all 0.3s ease; text-decoration:none;
+  position: relative;
+}
+.nav-link:hover { color: var(--gold-bright); }
+.nav-cta {
+  padding: 11px 28px;
+  border: 1.5px solid var(--gold);
+  color: var(--gold); font-family: var(--mono);
+  font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+  background: transparent; cursor:pointer; transition: all 0.3s ease;
+  font-weight: 500;
+}
+.nav-cta:hover { background: var(--gold); color: var(--black); box-shadow: 0 0 20px var(--gold-glow); }
+
+/* ── HERO ── */
+.hero {
+  position: relative; min-height: 100vh;
+  display: flex; align-items: center;
+  overflow: hidden;
+}
+
+/* Full-bleed background image — dark suited professional */
+.hero-bg {
+  position: absolute; inset:0; z-index:0;
+}
+.hero-bg img {
+  width:100%; height:100%; object-fit:cover;
+  object-position: center 20%;
+  filter: grayscale(30%) contrast(1.1);
+  transform: scale(1.05);
+  animation: slowZoom 20s ease-out forwards;
+}
+@keyframes slowZoom { from{transform:scale(1.05)} to{transform:scale(1.0)} }
+
+/* Overlay layers */
+.hero-overlay-left {
+  position: absolute; inset:0; z-index:1;
+  background: linear-gradient(110deg,
+    rgba(5,3,10,0.98) 0%,
+    rgba(15,13,22,0.92) 35%,
+    rgba(26,24,35,0.65) 60%,
+    rgba(26,24,35,0.25) 78%,
+    transparent 100%
+  );
+}
+.hero-overlay-bottom {
+  position: absolute; bottom:0; left:0; right:0; z-index:2;
+  height: 40%;
+  background: linear-gradient(0deg, var(--black) 0%, rgba(5,3,10,0.8) 40%, transparent 100%);
+}
+.hero-overlay-top {
+  position: absolute; top:0; left:0; right:0; z-index:2;
+  height: 25%;
+  background: linear-gradient(180deg, rgba(5,3,10,0.85) 0%, rgba(5,3,10,0.3) 50%, transparent 100%);
+}
+/* Atmospheric gold + cyan light leaks from right — cinematic premium feel */
+.hero-light-leak {
+  position: absolute; right:-8%; top:5%; z-index:2;
+  width: 50%; height: 90%;
+  background: 
+    radial-gradient(ellipse 600px 500px at 95% 35%, rgba(212,175,55,0.15) 0%, transparent 40%),
+    radial-gradient(ellipse 400px 600px at 98% 50%, rgba(0,217,255,0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+/* Noise texture */
+.hero-noise {
+  position: absolute; inset:0; z-index:3; opacity:0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events:none;
+}
+
+/* BIG background word */
+.hero-bg-word {
+  position: absolute; z-index:3;
+  right: -2%; top: 50%; transform: translateY(-50%);
+  font-family: var(--display);
+  font-size: clamp(180px, 22vw, 340px);
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(200,152,10,0.06);
+  letter-spacing: -8px; line-height:1;
+  user-select:none; pointer-events:none;
+  animation: fadeWordIn 2s ease 0.5s both;
+}
+@keyframes fadeWordIn { from{opacity:0} to{opacity:1} }
+
+/* CONTENT */
+.hero-content {
+  position: relative; z-index:5;
+  padding: 0 56px;
+  max-width: 680px;
+  padding-top: 80px;
+}
+
+.hero-tag {
+  display: inline-flex; align-items:center; gap:10px;
+  margin-bottom: 28px;
+  opacity:0; animation: slideUp 0.7s ease 0.3s forwards;
+}
+.hero-tag-line { width:28px; height:1px; background:var(--gold); }
+.hero-tag-text {
+  font-family: var(--mono); font-size:10px;
+  letter-spacing:4px; color:rgba(200,152,10,0.8);
+  text-transform:uppercase;
+}
+
+.hero-h1 {
+  font-family: var(--display);
+  font-size: clamp(56px, 8vw, 110px);
+  line-height: 0.85;
+  letter-spacing: -3px;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  font-weight: 900;
+}
+.hero-h1 .line1 { display:block; opacity:0; animation: slideUp 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.5s forwards; }
+.hero-h1 .line2 { display:block; opacity:0; animation: slideUp 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.7s forwards; background: linear-gradient(90deg, var(--gold-bright) 0%, var(--gold) 100%); -webkit-background-clip: text; color: transparent; }
+.hero-h1 .line3 { display:block; opacity:0; animation: slideUp 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.9s forwards; }
+
+.hero-sub {
+  font-size: 15px; color: var(--muted); line-height:1.8;
+  max-width:400px; margin-bottom:40px;
+  opacity:0; animation: slideUp 0.7s ease 1s forwards;
+}
+
+.hero-ctas {
+  display:flex; gap:14px; align-items:center; flex-wrap:wrap;
+  margin-bottom: 56px;
+  opacity:0; animation: slideUp 0.7s ease 1.1s forwards;
+}
+.btn-primary {
+  padding: 16px 40px;
+  background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold) 100%);
+  color: var(--black); font-weight:800; font-size:13px;
+  letter-spacing:2px; text-transform:uppercase;
+  border:none; cursor:pointer;
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 8px 24px rgba(212,175,55,0.2);
+}
+.btn-primary:hover { 
+  transform: translateY(-3px); 
+  box-shadow: 0 16px 40px rgba(212,175,55,0.35), 0 0 30px rgba(212,175,55,0.15);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-bright) 100%);
+}
+.btn-secondary {
+  padding: 15px 32px;
+  background: transparent; 
+  color: var(--white-dim);
+  border: 1.5px solid var(--dim); 
+  font-size: 13px;
+  letter-spacing: 1px; 
+  cursor: pointer; 
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+.btn-secondary:hover { 
+  border-color: var(--gold); 
+  color: var(--gold-bright); 
+  background: rgba(212,175,55,0.08);
+}
+
+.hero-stats {
+  display:flex; gap:36px;
+  padding-top:28px; border-top:1px solid var(--dim);
+  opacity:0; animation: slideUp 0.7s ease 1.25s forwards;
+}
+.hero-stat-n {
+  font-family: var(--display);
+  font-size:36px; color:var(--gold); line-height:1;
+}
+.hero-stat-l {
+  font-family: var(--mono); font-size:9px;
+  color:rgba(244,240,232,0.3); letter-spacing:1px;
+  text-transform:uppercase; margin-top:5px;
+}
+
+/* Floating phone card */
+.phone-float {
+  position:absolute; z-index:6;
+  right: 6%; bottom: 12%;
+  width: 230px;
+  opacity:0; animation: floatIn 0.9s ease 1.4s forwards;
+}
+@keyframes floatIn { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+.phone-card {
+  background: rgba(15,13,22,0.85);
+  border: 1.5px solid rgba(212,175,55,0.25);
+  border-radius: 12px; 
+  padding: 20px;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 0 60px rgba(212,175,55,0.1), 0 30px 100px rgba(0,0,0,0.6), inset 0 1px 0 rgba(212,175,55,0.1);
+  animation: phoneFloat 6s ease-in-out infinite 2s;
+}
+@keyframes phoneFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+.phone-label {
+  font-family: var(--mono); 
+  font-size: 9px;
+  letter-spacing: 3px; 
+  color: var(--gold);
+  text-transform: uppercase; 
+  margin-bottom: 16px;
+  display: flex; 
+  align-items: center; 
+  gap: 8px;
+  font-weight: 500;
+}
+.phone-dot {
+  width: 6px; 
+  height: 6px; 
+  border-radius: 50%;
+  background: var(--gold-bright); 
+  animation: pulse 2.5s ease-in-out infinite;
+  box-shadow: 0 0 12px var(--gold-glow);
+}
+@keyframes pulse { 0%,100%{opacity:1; box-shadow: 0 0 12px var(--gold-glow), 0 0 0 0 rgba(212,175,55,0.6)} 50%{opacity:0.8; box-shadow: 0 0 8px var(--gold-glow), 0 0 0 10px transparent} }
+.sms { display: flex; flex-direction: column; gap: 10px; }
+.sms-b {
+  padding: 10px 14px; 
+  border-radius: 8px;
+  font-size: 11px; 
+  line-height: 1.6; 
+  font-family: var(--body);
+  word-wrap: break-word;
+}
+.sms-b.out { 
+  background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold) 100%); 
+  color: var(--black); 
+  align-self: flex-end; 
+  max-width: 85%;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(212,175,55,0.2);
+}
+.sms-b.in { 
+  background: rgba(212,175,55,0.12); 
+  color: var(--white); 
+  align-self: flex-start; 
+  max-width: 85%;
+  border: 1px solid rgba(212,175,55,0.15);
+}
+.sms-time { 
+  font-size: 9px; 
+  color: rgba(212,175,55,0.4); 
+  font-family: var(--mono); 
+  text-align: center; 
+  margin-top: 6px;
+  letter-spacing: 1px;
+}
+
+/* Recovered badge */
+.recovered-badge {
+  position:absolute; z-index:6;
+  right: 26%; top: 22%;
+  opacity:0; animation: floatIn 0.9s ease 1.7s forwards;
+}
+.rec-card {
+  background: rgba(26,24,35,0.9);
+  border: 1.5px solid var(--gold);
+  border-radius: 8px; 
+  padding: 14px 20px;
+  backdrop-filter: blur(20px);
+  animation: recFloat 6s ease-in-out infinite 2.5s;
+  box-shadow: 0 0 20px var(--gold-glow), inset 0 1px 0 rgba(212,175,55,0.1);
+}
+@keyframes recFloat { 0%,100%{transform: translateY(0) rotate(-0.5deg)} 50%{transform: translateY(-10px) rotate(0.5deg)} }
+.rec-n { 
+  font-family: var(--display); 
+  font-size: 26px; 
+  color: var(--gold-bright); 
+  font-weight: 900;
+}
+.rec-l { 
+  font-family: var(--mono); 
+  font-size: 9px; 
+  color: var(--gold); 
+  letter-spacing: 2px; 
+  text-transform: uppercase; 
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Missed call badge */
+.missed-badge {
+  position:absolute; z-index:6;
+  left: 46%; top: 32%;
+  opacity:0; animation: floatIn 0.9s ease 2s forwards;
+}
+.miss-card {
+  background: rgba(26,24,35,0.9);
+  border: 1.5px solid var(--orange);
+  border-radius: 8px; 
+  padding: 12px 16px;
+  backdrop-filter: blur(16px);
+  animation: missFloat 7s ease-in-out infinite 3s;
+  display: flex; 
+  align-items: center; 
+  gap: 12px;
+  box-shadow: 0 0 16px rgba(255,107,53,0.15), inset 0 1px 0 rgba(255,107,53,0.1);
+}
+@keyframes missFloat { 0%,100%{transform: translateY(0)} 50%{transform: translateY(-8px)} }
+.miss-icon {
+  width: 32px; 
+  height: 32px; 
+  border-radius: 50%;
+  background: rgba(255,107,53,0.15);
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  flex-shrink: 0;
+  border: 1px solid rgba(255,107,53,0.3);
+}
+.miss-icon svg { 
+  width: 16px; 
+  height: 16px; 
+  stroke: var(--orange); 
+  stroke-width: 2;
+}
+.miss-text { font-family: var(--mono); }
+.miss-label { 
+  font-size: 9px; 
+  color: var(--orange); 
+  letter-spacing: 1px; 
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.miss-detail { 
+  font-size: 11px; 
+  color: var(--white-dim); 
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+@keyframes slideUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+
+/* ── TICKER ── */
+.ticker-wrap {
+  background: linear-gradient(90deg, rgba(212,175,55,0.08) 0%, rgba(212,175,55,0.04) 50%, rgba(212,175,55,0.08) 100%);
+  border-top: 1px solid rgba(212,175,55,0.12);
+  border-bottom: 1px solid rgba(212,175,55,0.12);
+  padding: 16px 0; 
+  overflow: hidden;
+  position: relative; 
+  z-index: 10;
+}
+.ticker-track {
+  display: flex; 
+  gap: 0;
+  animation: ticker 35s linear infinite;
+  width: max-content;
+}
+@keyframes ticker { from{transform: translateX(0)} to{transform: translateX(-50%)} }
+.ticker-item {
+  display: flex; 
+  align-items: center; 
+  gap: 14px;
+  padding: 0 48px; 
+  white-space: nowrap;
+  font-family: var(--mono); 
+  font-size: 11px;
+  color: var(--gold); 
+  letter-spacing: 2px; 
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.ticker-dot { 
+  width: 4px; 
+  height: 4px; 
+  border-radius: 50%; 
+  background: var(--gold-bright); 
+  opacity: 0.6;
+}
+
+/* ── PAIN SECTION ── */
+.pain {
+  padding: 140px 56px;
+  max-width: 1200px; 
+  margin: 0 auto;
+}
+.section-tag {
+  font-family: var(--mono); 
+  font-size: 11px;
+  letter-spacing: 4px; 
+  color: var(--gold);
+  text-transform: uppercase; 
+  margin-bottom: 56px;
+  display: flex; 
+  align-items: center; 
+  gap: 16px;
+  font-weight: 600;
+}
+.section-tag::before { 
+  content: ''; 
+  width: 28px; 
+  height: 1.5px; 
+  background: linear-gradient(90deg, var(--gold), transparent); 
+  opacity: 0.8;
+}
+
+.pain-grid { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 2px; 
+  background: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, transparent 100%);
+}
+.pain-card {
+  background: linear-gradient(135deg, rgba(26,24,35,0.8) 0%, rgba(15,13,22,0.8) 100%);
+  padding: 52px 44px;
+  position: relative; 
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(212,175,55,0.1);
+}
+.pain-card:hover { 
+  background: linear-gradient(135deg, rgba(26,24,35,0.95) 0%, rgba(15,13,22,0.95) 100%);
+  border-color: rgba(212,175,55,0.3);
+  box-shadow: 0 0 30px rgba(212,175,55,0.1);
+}
+.pain-card::before {
+  content: ''; 
+  position: absolute; 
+  left: 0; 
+  top: 0; 
+  bottom: 0;
+  width: 3px; 
+  background: var(--orange); 
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.pain-card:hover::before { opacity: 0.8; }
+.pain-num {
+  font-family: var(--mono); 
+  font-size: 11px;
+  color: rgba(212,175,55,0.5); 
+  letter-spacing: 2px; 
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+.pain-h {
+  font-family: var(--display); 
+  font-size: 24px;
+  text-transform: uppercase; 
+  letter-spacing: -1px;
+  margin-bottom: 16px; 
+  line-height: 1.1;
+  font-weight: 900;
+}
+.pain-p { 
+  font-size: 15px; 
+  color: var(--muted); 
+  line-height: 1.8;
+}
+.pain-stat {
+  margin-top: 28px;
+  font-family: var(--display); 
+  font-size: 48px; 
+  color: var(--orange);
+  line-height: 1;
+  font-weight: 900;
+}
+.pain-stat-l { 
+  font-family: var(--mono); 
+  font-size: 10px; 
+  color: var(--muted-deep); 
+  letter-spacing: 1px; 
+  margin-top: 6px;
+}
+
+/* ── DEMO SECTION ── */
+.demo-section {
+  padding: 140px 56px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.06) 0%, transparent 65%);
+  border-top: 1px solid rgba(212,175,55,0.12);
+}
+.demo-inner { 
+  max-width: 720px; 
+  margin: 0 auto;
+}
+.demo-headline {
+  text-align: center; 
+  margin-bottom: 20px;
+}
+.demo-h {
+  font-family: var(--display); 
+  font-size: clamp(40px, 6vw, 72px);
+  text-transform: uppercase; 
+  letter-spacing: -2px; 
+  line-height: 0.9;
+  font-weight: 900;
+}
+.demo-sub { 
+  text-align: center; 
+  font-size: 15px; 
+  color: var(--muted); 
+  margin-bottom: 56px; 
+  line-height: 1.8;
+}
+
+.demo-widget {
+  background: rgba(15,13,22,0.85);
+  border: 1.5px solid rgba(212,175,55,0.2);
+  border-radius: 8px; 
+  overflow: hidden;
+  box-shadow: 0 0 40px rgba(212,175,55,0.08), inset 0 1px 0 rgba(212,175,55,0.1);
+  backdrop-filter: blur(8px);
+}
+.demo-header {
+  padding: 24px 32px;
+  border-bottom: 1px solid rgba(212,175,55,0.1);
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
+  background: linear-gradient(90deg, rgba(212,175,55,0.03) 0%, transparent 100%);
+}
+.demo-header-title {
+  font-family: var(--mono); 
+  font-size: 11px;
+  letter-spacing: 3px; 
+  color: var(--gold); 
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.demo-prog-wrap { 
+  width: 140px; 
+  height: 2.5px; 
+  background: rgba(212,175,55,0.15);
+  border-radius: 2px;
+}
+.demo-prog { 
+  height: 100%; 
+  background: linear-gradient(90deg, var(--gold-bright) 0%, var(--gold) 100%);
+  transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  border-radius: 2px;
+  box-shadow: 0 0 12px var(--gold-glow);
+}
+
+.demo-body { 
+  padding: 36px 32px;
+}
+.demo-step { 
+  display: none;
+}
+.demo-step.active { 
+  display: block; 
+  animation: fadeIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes fadeIn { from{opacity: 0; transform: translateY(12px)} to{opacity: 1; transform: none} }
+
+.demo-step-label {
+  font-family: var(--mono); 
+  font-size: 11px;
+  letter-spacing: 2px; 
+  color: var(--gold); 
+  text-transform: uppercase; 
+  margin-bottom: 28px;
+  font-weight: 600;
+}
+.ind-grid { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr 1fr; 
+  gap: 12px; 
+  margin-bottom: 28px;
+}
+.ind-card {
+  padding: 16px 14px; 
+  border: 1.5px solid rgba(212,175,55,0.15);
+  cursor: pointer; 
+  transition: all 0.3s ease; 
+  text-align: center;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(26,24,35,0.6) 0%, rgba(15,13,22,0.6) 100%);
+}
+.ind-card:hover { 
+  border-color: rgba(212,175,55,0.4); 
+  background: linear-gradient(135deg, rgba(26,24,35,0.9) 0%, rgba(15,13,22,0.9) 100%);
+  box-shadow: 0 0 16px rgba(212,175,55,0.1);
+}
+.ind-card.sel { 
+  border-color: var(--gold); 
+  background: linear-gradient(135deg, rgba(212,175,55,0.15) 0%, rgba(212,175,55,0.08) 100%);
+  box-shadow: 0 0 20px var(--gold-glow);
+}
+.ind-card-name { 
+  font-size: 13px; 
+  font-weight: 700; 
+  margin-bottom: 4px;
+}
+.ind-card-type { 
+  font-family: var(--mono); 
+  font-size: 10px; 
+  color: var(--muted-deep); 
+  letter-spacing: 1px;
+}
+
+.phone-input {
+  width: 100%; 
+  padding: 16px 20px; 
+  margin-bottom: 20px;
+  background: rgba(26,24,35,0.6);
+  border: 1.5px solid rgba(212,175,55,0.15); 
+  color: var(--white);
+  font-size: 15px; 
+  font-family: var(--body);
+  outline: none; 
+  border-radius: 6px; 
+  transition: all 0.3s ease;
+}
+.phone-input:focus { 
+  border-color: var(--gold); 
+  background: rgba(26,24,35,0.8);
+  box-shadow: 0 0 20px var(--gold-glow);
+}
+.phone-input::placeholder { 
+  color: rgba(244,240,232,0.25);
+}
+
+.demo-btn {
+  width: 100%; 
+  padding: 18px;
+  background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold) 100%);
+  color: var(--black);
+  font-weight: 800; 
+  font-size: 13px; 
+  letter-spacing: 2px;
+  text-transform: uppercase; 
+  border: none; 
+  cursor: pointer;
+  border-radius: 6px; 
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 8px 24px rgba(212,175,55,0.25);
+}
+.demo-btn:hover:not(:disabled) { 
+  transform: translateY(-2px); 
+  box-shadow: 0 16px 40px rgba(212,175,55,0.35), 0 0 30px rgba(212,175,55,0.15);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-bright) 100%);
+}
+.demo-btn:disabled { 
+  opacity: 0.4; 
+  cursor: not-allowed; 
+  transform: none;
+}
+
+.demo-footer {
+  padding: 18px 32px;
+  border-top: 1px solid rgba(212,175,55,0.1);
+  font-family: var(--mono); 
+  font-size: 10px;
+  color: var(--muted-deep); 
+  letter-spacing: 1px;
+  text-align: center; 
+  text-transform: uppercase;
+  background: linear-gradient(90deg, transparent 0%, rgba(212,175,55,0.02) 50%, transparent 100%);
+}
+.demo-success {
+  text-align: center; 
+  padding: 28px 0;
+}
+.demo-success-icon {
+  width: 64px; 
+  height: 64px; 
+  border-radius: 50%;
+  border: 2.5px solid var(--gold); 
+  margin: 0 auto 20px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  background: rgba(212,175,55,0.08);
+  box-shadow: 0 0 30px var(--gold-glow), inset 0 0 20px rgba(212,175,55,0.08);
+  animation: successPulse 0.6s ease;
+}
+@keyframes successPulse { from{transform: scale(0.9); opacity: 0} to{transform: scale(1); opacity: 1} }
+.demo-success-icon svg { 
+  stroke: var(--gold-bright); 
+  width: 28px; 
+  height: 28px;
+  stroke-width: 2.5;
+}
+.demo-success-h { 
+  font-family: var(--display); 
+  font-size: 26px; 
+  text-transform: uppercase; 
+  margin-bottom: 12px;
+  font-weight: 900;
+}
+.demo-success-p { 
+  font-size: 14px; 
+  color: var(--muted); 
+  line-height: 1.8;
+}
+
+/* ── HOW ── */
+.how { 
+  padding: 140px 56px; 
+  max-width: 1200px; 
+  margin: 0 auto;
+}
+.how-steps { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr 1fr; 
+  gap: 2px; 
+  background: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, transparent 100%);
+  margin-top: 56px;
+}
+.how-step {
+  background: linear-gradient(135deg, rgba(26,24,35,0.8) 0%, rgba(15,13,22,0.8) 100%);
+  padding: 52px 40px;
+  position: relative;
+  border: 1px solid rgba(212,175,55,0.1);
+  transition: all 0.3s ease;
+}
+.how-step:hover {
+  background: linear-gradient(135deg, rgba(26,24,35,0.95) 0%, rgba(15,13,22,0.95) 100%);
+  border-color: rgba(212,175,55,0.25);
+  box-shadow: 0 0 30px rgba(212,175,55,0.08);
+}
+.how-step-n {
+  font-family: var(--mono); 
+  font-size: 11px;
+  letter-spacing: 2px; 
+  color: var(--gold); 
+  margin-bottom: 28px;
+  display: flex; 
+  align-items: center; 
+  gap: 12px;
+  font-weight: 600;
+}
+.how-step-n::after { 
+  content: ''; 
+  flex: 1; 
+  height: 1px; 
+  background: linear-gradient(90deg, rgba(212,175,55,0.2), transparent);
+}
+.how-step-icon {
+  margin-bottom: 24px;
+}
+.how-step-icon svg { 
+  stroke: var(--gold-bright); 
+  width: 32px; 
+  height: 32px; 
+  stroke-width: 1.5;
+}
+.how-step-h { 
+  font-family: var(--display); 
+  font-size: 20px; 
+  text-transform: uppercase; 
+  margin-bottom: 14px; 
+  line-height: 1.1;
+  font-weight: 900;
+}
+.how-step-p { 
+  font-size: 14px; 
+  color: var(--muted); 
+  line-height: 1.8;
+}
+.how-step:nth-child(3) .how-step-icon svg { 
+  stroke: #00E676;
+}
+.how-step:nth-child(3) .how-step-n { 
+  color: rgba(0,230,118,0.8);
+}
+
+/* ── FINAL CTA ── */
+.final-cta {
+  position: relative; 
+  overflow: hidden;
+  padding: 160px 56px; 
+  text-align: center;
+  border-top: 1px solid rgba(212,175,55,0.12);
+}
+.final-cta-bg {
+  position: absolute; 
+  inset: 0; 
+  z-index: 0;
+}
+.final-cta-bg img {
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover;
+  object-position: center 30%;
+  filter: grayscale(60%) brightness(0.15) contrast(1.1);
+}
+.final-cta-overlay {
+  position: absolute; 
+  inset: 0; 
+  z-index: 1;
+  background: linear-gradient(180deg, 
+    var(--black) 0%, 
+    rgba(5,3,10,0.85) 40%,
+    rgba(5,3,10,0.85) 60%, 
+    var(--black) 100%);
+}
+.final-cta-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(212,175,55,0.1) 0%, transparent 70%);
+  z-index: 1;
+}
+.final-cta-content { 
+  position: relative; 
+  z-index: 2;
+}
+.final-h {
+  font-family: var(--display);
+  font-size: clamp(48px, 8vw, 100px);
+  text-transform: uppercase; 
+  letter-spacing: -3px; 
+  line-height: 0.85;
+  margin-bottom: 28px;
+  font-weight: 900;
+}
+.final-h span { 
+  background: linear-gradient(90deg, var(--gold-bright) 0%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+.final-sub { 
+  font-size: 16px; 
+  color: var(--muted); 
+  margin-bottom: 48px; 
+  line-height: 1.8; 
+  max-width: 520px; 
+  margin-left: auto; 
+  margin-right: auto;
+}
+.final-btn {
+  display: inline-flex; 
+  align-items: center; 
+  gap: 14px;
+  padding: 20px 50px;
+  background: linear-gradient(135deg, var(--gold-bright) 0%, var(--gold) 100%);
+  color: var(--black);
+  font-weight: 800; 
+  font-size: 14px; 
+  letter-spacing: 2px; 
+  text-transform: uppercase;
+  border: none; 
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow: 0 12px 32px rgba(212,175,55,0.3);
+}
+.final-btn:hover { 
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-bright) 100%);
+  transform: translateY(-3px); 
+  box-shadow: 0 20px 50px rgba(212,175,55,0.4), 0 0 40px rgba(212,175,55,0.15);
+}
+.final-note { 
+  margin-top: 24px; 
+  font-family: var(--mono); 
+  font-size: 11px; 
+  color: var(--muted-deep); 
+  letter-spacing: 2px;
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid rgba(212,175,55,0.12);
+  padding: 40px 56px;
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center;
+  background: linear-gradient(90deg, rgba(212,175,55,0.02) 0%, transparent 100%);
+}
+.footer-logo { 
+  font-family: var(--mono); 
+  font-size: 12px; 
+  letter-spacing: 6px; 
+  color: var(--gold); 
+  font-weight: 600;
+}
+.footer-right { 
+  font-family: var(--mono); 
+  font-size: 10px; 
+  color: var(--muted-deep); 
+  letter-spacing: 2px;
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal { opacity:0; transform:translateY(32px); transition:opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity:1; transform:none; }
+.reveal-delay-1 { transition-delay:0.1s; }
+.reveal-delay-2 { transition-delay:0.2s; }
+.reveal-delay-3 { transition-delay:0.3s; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  nav { padding:18px 24px; }
+  .nav-right .nav-link { display:none; }
+  .hero-content { padding:0 24px; padding-top:80px; }
+  .phone-float { display:none; }
+  .recovered-badge, .missed-badge { display:none; }
+  .hero-bg-word { display:none; }
+  .pain { padding:80px 24px; }
+  .pain-grid { grid-template-columns:1fr; }
+  .demo-section { padding:80px 24px; }
+  .ind-grid { grid-template-columns:1fr 1fr; }
+  .how { padding:80px 24px; }
+  .how-steps { grid-template-columns:1fr; }
+  .final-cta { padding:100px 24px; }
+  footer { padding:24px; flex-direction:column; gap:12px; text-align:center; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">NEXUS</div>
+  <div class="nav-right">
+    <a class="nav-link" href="#how">How It Works</a>
+    <a class="nav-link" href="#demo">Demo</a>
+    <a class="nav-link" href="#demo">Pricing</a>
+    <button class="nav-cta">Get Started Today</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <!-- Suited professional businessman — authority, trust, B2B -->
+    <img
+      src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=1600&q=90&fit=crop"
+      alt="Professional businessman"
+      loading="eager"
+    >
+  </div>
+  <div class="hero-overlay-left"></div>
+  <div class="hero-overlay-bottom"></div>
+  <div class="hero-overlay-top"></div>
+  <div class="hero-light-leak"></div>
+  <div class="hero-noise"></div>
+
+  <div class="hero-bg-word">NEXUS</div>
+
+  <!-- Floating badges -->
+  <div class="recovered-badge">
+    <div class="rec-card">
+      <div class="rec-n" id="rec-counter">$4,200</div>
+      <div class="rec-l">Recovered Today</div>
+    </div>
+  </div>
+
+  <div class="missed-badge">
+    <div class="miss-card">
+      <div class="miss-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.95-1.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+      </div>
+      <div class="miss-text">
+        <div class="miss-label">Missed Call</div>
+        <div class="miss-detail">+1 (415) 555-0142</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-tag">
+      <div class="hero-tag-line"></div>
+      <div class="hero-tag-text">Revenue Recovery System</div>
+    </div>
+    <h1 class="hero-h1">
+      <span class="line1">Stop</span>
+      <span class="line2">Losing</span>
+      <span class="line3">Revenue.</span>
+    </h1>
+    <p class="hero-sub">Every missed call is a lead your competitor just answered. We text them back in under 10 seconds — qualifying, booking, recovering.</p>
+    <div class="hero-ctas">
+      <button class="btn-primary" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">Get It Running Today →</button>
+      <button class="btn-secondary" onclick="document.getElementById('how').scrollIntoView({behavior:'smooth'})">See How It Works</button>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-n">85%</div>
+        <div class="hero-stat-l">Never call back</div>
+      </div>
+      <div>
+        <div class="hero-stat-n">&lt;10s</div>
+        <div class="hero-stat-l">Response time</div>
+      </div>
+      <div>
+        <div class="hero-stat-n">Today</div>
+        <div class="hero-stat-l">Live on your line</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating phone -->
+  <div class="phone-float">
+    <div class="phone-card">
+      <div class="phone-label">
+        <div class="phone-dot"></div>
+        Lead Recovered
+      </div>
+      <div class="sms">
+        <div class="sms-b out">Hi — sorry we missed your call. How can we help? Reply 1=Urgent, 2=Book, 3=Question</div>
+        <div class="sms-b in">2 - need a roof inspection</div>
+        <div class="sms-b out">Got it. We have Thu + Fri open this week. Morning or afternoon?</div>
+        <div class="sms-b in">Thursday morning works</div>
+      </div>
+      <div class="sms-time">9.4s response time · Lead qualified ✓</div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <div class="ticker-item"><span class="ticker-dot"></span>85% of callers never call back</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>The first business to respond wins 78% of the time</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>62% of missed callers call a competitor immediately</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>One missed roofing call = up to $15,000 lost</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>Nexus responds in under 10 seconds, 24/7</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>Your line. Your leads. Operational within hours.</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>85% of callers never call back</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>The first business to respond wins 78% of the time</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>62% of missed callers call a competitor immediately</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>One missed roofing call = up to $15,000 lost</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>Nexus responds in under 10 seconds, 24/7</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>Your line. Your leads. Operational within hours.</div>
+  </div>
+</div>
+
+<!-- PAIN -->
+<section class="pain">
+  <div class="section-tag reveal">The Problem</div>
+  <div class="pain-grid">
+    <div class="pain-card reveal reveal-delay-1">
+      <div class="pain-num">01</div>
+      <div class="pain-h">They Called Once. Just Once.</div>
+      <p class="pain-p">85% of callers who can't reach you on the first try never call back. They're on their phone right now calling the next business on Google.</p>
+      <div class="pain-stat">85%</div>
+      <div class="pain-stat-l">Never call back · Kell Solutions 2025</div>
+    </div>
+    <div class="pain-card reveal reveal-delay-2">
+      <div class="pain-num">02</div>
+      <div class="pain-h">Your Competitor Already Answered.</div>
+      <p class="pain-p">62% of unanswered callers contact a competitor immediately. Not eventually — immediately. Speed wins the job, not price.</p>
+      <div class="pain-stat">62%</div>
+      <div class="pain-stat-l">Call a competitor immediately · Invoca 2024</div>
+    </div>
+    <div class="pain-card reveal reveal-delay-1">
+      <div class="pain-num">03</div>
+      <div class="pain-h">One Missed Call. Real Money.</div>
+      <p class="pain-p">For HVAC, roofing, and dental — one missed job is $3,000 to $15,000 in lost revenue. That's not a statistic. That's your month.</p>
+      <div class="pain-stat">$15k</div>
+      <div class="pain-stat-l">Average missed roofing job value</div>
+    </div>
+    <div class="pain-card reveal reveal-delay-2">
+      <div class="pain-num">04</div>
+      <div class="pain-h">After Hours Is Where You Lose Most.</div>
+      <p class="pain-p">The majority of missed calls happen evenings and weekends — exactly when your staff isn't there. Nexus never sleeps.</p>
+      <div class="pain-stat">67%</div>
+      <div class="pain-stat-l">Of missed calls happen after hours</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="section-tag reveal">How It Works</div>
+  <div class="how-steps">
+    <div class="how-step reveal reveal-delay-1">
+      <div class="how-step-n">01</div>
+      <div class="how-step-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.95-1.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+        </svg>
+      </div>
+      <div class="how-step-h">Call Missed</div>
+      <p class="how-step-p">A lead calls your business. You're on a job, with a client, or it's 11pm. The call goes unanswered.</p>
+    </div>
+    <div class="how-step reveal reveal-delay-2">
+      <div class="how-step-n">02</div>
+      <div class="how-step-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+      <div class="how-step-h">Nexus Responds</div>
+      <p class="how-step-p">In under 10 seconds, your AI sends a personalised SMS — sounding like your receptionist, not a bot. Qualifies their intent, books if ready.</p>
+    </div>
+    <div class="how-step reveal reveal-delay-3">
+      <div class="how-step-n">03</div>
+      <div class="how-step-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <div class="how-step-h">Revenue Recovered</div>
+      <p class="how-step-p">You get notified of a booked appointment. The lead never had a chance to call your competitor. Job closed.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section class="demo-section" id="demo">
+  <div class="demo-inner">
+    <div class="demo-headline reveal">
+      <h2 class="demo-h">Experience It<br>On Your Phone.</h2>
+    </div>
+    <p class="demo-sub reveal">Pick your industry. Enter your number. Get the exact SMS your leads would receive — right now.</p>
+    <div class="demo-widget reveal">
+      <div class="demo-header">
+        <div class="demo-header-title">Live Demo</div>
+        <div class="demo-prog-wrap">
+          <div class="demo-prog" id="prog" style="width:33%"></div>
+        </div>
+      </div>
+      <div class="demo-body">
+        <!-- Step 1 -->
+        <div class="demo-step active" id="s1">
+          <div class="demo-step-label">Step 1 of 2 — Select Your Industry</div>
+          <div class="ind-grid">
+            <div class="ind-card" onclick="pickInd('hvac',this)"><div class="ind-card-name">HVAC</div><div class="ind-card-type">Heating · Cooling</div></div>
+            <div class="ind-card" onclick="pickInd('roofing',this)"><div class="ind-card-name">Roofing</div><div class="ind-card-type">Residential · Storm</div></div>
+            <div class="ind-card" onclick="pickInd('dental',this)"><div class="ind-card-name">Dental</div><div class="ind-card-type">Clinic · Practice</div></div>
+            <div class="ind-card" onclick="pickInd('legal',this)"><div class="ind-card-name">Legal</div><div class="ind-card-type">Attorney · Firm</div></div>
+            <div class="ind-card" onclick="pickInd('plumbing',this)"><div class="ind-card-name">Plumbing</div><div class="ind-card-type">Residential · Commercial</div></div>
+            <div class="ind-card" onclick="pickInd('medspa',this)"><div class="ind-card-name">Med Spa</div><div class="ind-card-type">Aesthetics · Wellness</div></div>
+          </div>
+          <button class="demo-btn" id="btn1" disabled onclick="goStep2()">Continue →</button>
+        </div>
+        <!-- Step 2 -->
+        <div class="demo-step" id="s2">
+          <div class="demo-step-label">Step 2 of 2 — Enter Your Number</div>
+          <input class="phone-input" id="phone" type="tel" placeholder="Your mobile number" oninput="checkPhone()">
+          <button class="demo-btn" id="btn2" disabled onclick="sendDemo()">Send My Demo Now →</button>
+        </div>
+        <!-- Step 3 success -->
+        <div class="demo-step" id="s3">
+          <div class="demo-success">
+            <div class="demo-success-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="demo-success-h">Message Sent.</div>
+            <p class="demo-success-p">Check your phone. That's exactly what your missed callers receive — in under 10 seconds, 24/7.</p>
+            <button class="demo-btn" style="margin-top:24px" onclick="resetDemo()">Try Another Industry →</button>
+          </div>
+        </div>
+      </div>
+      <div class="demo-footer">No signup required · Live on your line within hours</div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <div class="final-cta-bg">
+    <img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80&fit=crop" alt="Construction worker on roof">
+  </div>
+  <div class="final-cta-overlay"></div>
+  <div class="final-cta-content reveal">
+    <h2 class="final-h">Ready To Stop<br><span>Losing Revenue?</span></h2>
+    <p class="final-sub">Every missed call is a job your competitor just closed. Nexus texts them back in under 10 seconds — qualifying, booking, recovering. Your line. Your leads. Operational within hours.</p>
+    <button class="final-btn" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">
+      Get It Running Today →
+    </button>
+    <div class="final-note">No contract · Running on your business line today · HVAC · Roofing · Dental · Legal · Med Spa</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">NEXUS</div>
+  <div class="footer-right">© 2025 Nexus Response · nexusresponse.com.ng</div>
+</footer>
+
+<script>
+// Scroll reveal
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold:0.12 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Revenue counter
+let rec = 3840;
+setInterval(() => {
+  const amt = 120 + Math.floor(Math.random()*300);
+  rec += amt;
+  const el = document.getElementById('rec-counter');
+  if(el) el.textContent = '$' + rec.toLocaleString();
+}, 8000);
+
+// Demo logic
+let industry = '';
+function pickInd(ind, el) {
+  document.querySelectorAll('.ind-card').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel'); industry = ind;
+  document.getElementById('btn1').disabled = false;
+}
+function goStep2() {
+  document.getElementById('s1').classList.remove('active');
+  document.getElementById('s2').classList.add('active');
+  document.getElementById('prog').style.width = '66%';
+}
+function checkPhone() {
+  const v = document.getElementById('phone').value.replace(/\D/g,'');
+  document.getElementById('btn2').disabled = v.length < 7;
+}
+async function sendDemo() {
+  const btn = document.getElementById('btn2');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  const fd = new FormData();
+  fd.append('industry', industry);
+  fd.append('phone', document.getElementById('phone').value);
+  try {
+    const r = await fetch('/demo/start', { method:'POST', body:fd });
+    const d = await r.json();
+    if(d.success) {
+      document.getElementById('s2').classList.remove('active');
+      document.getElementById('s3').classList.add('active');
+      document.getElementById('prog').style.width = '100%';
+    } else {
+      showErr(d.error || 'Something went wrong. Try again.');
+      btn.disabled = false; btn.textContent = 'Send My Demo Now →';
+    }
+  } catch(e) {
+    showErr('Network error. Please try again.');
+    btn.disabled = false; btn.textContent = 'Send My Demo Now →';
+  }
+}
+function showErr(msg) {
+  const existing = document.querySelector('.demo-err');
+  if(existing) existing.remove();
+  const el = document.createElement('div');
+  el.className = 'demo-err';
+  el.style.cssText = 'font-family:var(--mono);font-size:11px;color:#FF4444;margin-top:12px;padding:10px 14px;background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.2);border-radius:2px;';
+  el.textContent = msg;
+  document.getElementById('btn2').after(el);
+}
+function resetDemo() {
+  industry = '';
+  document.querySelectorAll('.ind-card').forEach(c => c.classList.remove('sel'));
+  document.getElementById('phone').value = '';
+  document.getElementById('btn1').disabled = true;
+  document.getElementById('btn2').disabled = true;
+  document.getElementById('btn2').textContent = 'Send My Demo Now →';
+  document.getElementById('s3').classList.remove('active');
+  document.getElementById('s2').classList.remove('active');
+  document.getElementById('s1').classList.add('active');
+  document.getElementById('prog').style.width = '33%';
+  const err = document.querySelector('.demo-err');
+  if(err) err.remove();
+}
+</script>
+</body>
+</html>

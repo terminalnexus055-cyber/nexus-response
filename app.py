@@ -221,8 +221,8 @@ def process_reply(to_num, from_num, body):
 # ─── ROUTES ──────────────────────────────────────────────────────────────────
 
 @app.route("/", methods=["GET"])
-def health_check():
-    return "Nexus Engine: Online.", 200
+def index():
+    return render_template("index.html")
 
 @app.route("/test-db", methods=["GET"])
 def test_db():

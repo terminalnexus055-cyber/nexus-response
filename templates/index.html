@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus Response — Operational Lead Engagement Infrastructure</title>
+<meta name="description" content="When your team can't respond immediately, Nexus does. Missed call recovery for high-ticket local businesses.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=IBM+Plex+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+:root{
+  --ink:#060410;--ink2:#0D0B1A;--ink3:#16132A;
+  --gold:#C9A84C;--gold2:#E2C06A;--gold-glow:rgba(201,168,76,0.18);
+  --red:#D94040;--green:#1DB954;--amber:#E8A020;
+  --white:#F0EDE8;--muted:rgba(240,237,232,0.36);
+  --dim:rgba(240,237,232,0.07);--dim2:rgba(240,237,232,0.04);
+  --mono:'IBM Plex Mono',monospace;
+  --display:'Archivo Black',sans-serif;
+  --serif:'Cormorant Garamond',serif;
+  --body:'DM Sans',sans-serif;
+}
+body{background:var(--ink);color:var(--white);font-family:var(--body);overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:18px 56px;border-bottom:1px solid var(--dim);background:rgba(6,4,16,0.94);backdrop-filter:blur(16px);}
+.nav-logo{font-family:var(--mono);font-size:12px;letter-spacing:8px;color:var(--white);}
+.nav-center{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9px;color:rgba(29,185,84,0.6);letter-spacing:2px;text-transform:uppercase;}
+.pulse{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 3s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.nav-cta{padding:9px 22px;border:1px solid rgba(201,168,76,0.35);color:var(--gold);font-family:var(--mono);font-size:10px;letter-spacing:3px;text-transform:uppercase;background:transparent;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-block;}
+.nav-cta:hover{background:var(--gold);color:var(--ink);}
+
+/* HERO */
+.hero{position:relative;min-height:100vh;display:grid;grid-template-columns:55% 45%;align-items:center;padding:0 56px;padding-top:80px;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;z-index:0;}
+.hero-bg img{width:100%;height:100%;object-fit:cover;object-position:65% center;filter:grayscale(50%) brightness(0.28) contrast(1.15);animation:zoom 20s ease-out forwards;}
+@keyframes zoom{from{transform:scale(1.06)}to{transform:scale(1)}}
+.hero-bg-ol{position:absolute;inset:0;background:linear-gradient(95deg,rgba(6,4,16,1) 0%,rgba(6,4,16,0.95) 40%,rgba(6,4,16,0.5) 65%,rgba(6,4,16,0.08) 100%),linear-gradient(180deg,rgba(6,4,16,0.6) 0%,transparent 20%,transparent 75%,rgba(6,4,16,1) 100%);}
+.hero-grid-ol{position:absolute;inset:0;z-index:1;background-image:linear-gradient(rgba(201,168,76,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,0.022) 1px,transparent 1px);background-size:72px 72px;mask-image:radial-gradient(ellipse at 20% 50%,black 5%,transparent 65%);}
+.hero-gold-leak{position:absolute;right:0;top:0;bottom:0;width:50%;z-index:1;background:radial-gradient(ellipse 700px 600px at 90% 40%,rgba(201,168,76,0.09) 0%,transparent 55%);pointer-events:none;}
+
+.hero-left{position:relative;z-index:5;padding-right:40px;}
+.hero-right{position:relative;z-index:5;}
+
+.eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:22px;opacity:0;animation:up .7s ease .2s forwards;}
+.eyebrow-line{width:22px;height:1px;background:var(--gold);opacity:.55;}
+.eyebrow-text{font-family:var(--mono);font-size:10px;letter-spacing:4px;color:rgba(201,168,76,.6);text-transform:uppercase;}
+
+.hero-h1{font-family:var(--display);font-size:clamp(40px,5.2vw,84px);line-height:.88;letter-spacing:-2px;text-transform:uppercase;margin-bottom:20px;}
+.hero-h1 .l1{display:block;opacity:0;animation:up .8s cubic-bezier(.34,1.3,.64,1) .35s forwards;}
+.hero-h1 .l2{display:block;opacity:0;animation:up .8s cubic-bezier(.34,1.3,.64,1) .5s forwards;color:transparent;-webkit-text-stroke:1.5px rgba(201,168,76,.42);}
+.hero-h1 .l3{display:block;opacity:0;animation:up .8s cubic-bezier(.34,1.3,.64,1) .65s forwards;}
+
+.hero-sub{font-family:var(--serif);font-style:italic;font-size:clamp(15px,1.7vw,19px);color:rgba(240,237,232,.45);line-height:1.65;max-width:340px;margin-bottom:30px;opacity:0;animation:up .7s ease .85s forwards;}
+.hero-ctas{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:40px;opacity:0;animation:up .7s ease 1s forwards;}
+
+.btn-gold{padding:13px 34px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--ink);font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase;border:none;cursor:pointer;border-radius:1px;transition:all .25s ease;box-shadow:0 8px 24px rgba(201,168,76,.18);text-decoration:none;display:inline-block;}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(201,168,76,.32);}
+.btn-ghost{padding:12px 26px;background:transparent;color:var(--muted);border:1px solid var(--dim);font-size:12px;letter-spacing:1px;cursor:pointer;transition:all .25s ease;border-radius:1px;text-decoration:none;display:inline-block;}
+.btn-ghost:hover{border-color:rgba(201,168,76,.35);color:var(--gold);}
+
+.hero-stats{display:flex;gap:28px;padding-top:22px;border-top:1px solid var(--dim);opacity:0;animation:up .7s ease 1.15s forwards;}
+.hs-n{font-family:var(--display);font-size:28px;color:var(--gold);line-height:1;}
+.hs-l{font-family:var(--mono);font-size:9px;color:rgba(240,237,232,.2);letter-spacing:1px;text-transform:uppercase;margin-top:4px;}
+
+/* OPERATIONAL PANEL */
+.op-panel{display:flex;flex-direction:column;gap:8px;opacity:0;animation:up .8s ease .95s forwards;}
+
+/* Feed events */
+.feed-event{display:flex;align-items:flex-start;gap:11px;padding:12px 14px;background:rgba(13,11,26,.88);border:1px solid var(--dim);border-radius:3px;backdrop-filter:blur(12px);transition:all .3s;}
+.feed-event.new-event{animation:eventFlash .5s ease;}
+@keyframes eventFlash{from{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.04)}to{border-color:var(--dim);background:rgba(13,11,26,.88)}}
+.fed{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.fed.miss{background:var(--red);box-shadow:0 0 7px var(--red);}
+.fed.sent{background:rgba(201,168,76,.7);}
+.fed.reply{background:rgba(240,237,232,.22);}
+.fed.book{background:var(--green);box-shadow:0 0 7px var(--green);}
+.fed.qual{background:var(--amber);}
+.fb{flex:1;}
+.fl{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:2px;}
+.fl.r{color:rgba(217,64,64,.8);}
+.fl.g{color:rgba(201,168,76,.75);}
+.fl.gr{color:rgba(29,185,84,.75);}
+.fl.a{color:rgba(232,160,32,.75);}
+.fd{font-size:12px;color:rgba(240,237,232,.62);line-height:1.4;}
+.ft{font-family:var(--mono);font-size:9px;color:rgba(240,237,232,.15);white-space:nowrap;padding-top:4px;}
+
+.typing-indicator{display:flex;align-items:center;gap:8px;padding:9px 14px;opacity:0;transition:opacity .3s;}
+.typing-indicator.show{opacity:1;}
+.dots{display:flex;gap:3px;}
+.dots span{width:4px;height:4px;border-radius:50%;background:rgba(201,168,76,.35);}
+.dots span:nth-child(1){animation:dot 1.4s 0s infinite;}
+.dots span:nth-child(2){animation:dot 1.4s .2s infinite;}
+.dots span:nth-child(3){animation:dot 1.4s .4s infinite;}
+@keyframes dot{0%,80%,100%{transform:scale(.6);opacity:.3}40%{transform:scale(1);opacity:1}}
+.dots-label{font-family:var(--mono);font-size:9px;color:rgba(201,168,76,.32);letter-spacing:2px;text-transform:uppercase;}
+
+.rev-card{padding:13px 15px;background:rgba(29,185,84,.05);border:1px solid rgba(29,185,84,.12);border-radius:3px;display:flex;justify-content:space-between;align-items:center;}
+.rev-label{font-family:var(--mono);font-size:9px;color:rgba(29,185,84,.42);letter-spacing:2px;text-transform:uppercase;}
+.rev-amt{font-family:var(--display);font-size:20px;color:var(--green);}
+.rev-sub{font-family:var(--mono);font-size:9px;color:rgba(29,185,84,.32);letter-spacing:1px;}
+
+@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* TICKER */
+.ticker{border-top:1px solid var(--dim);border-bottom:1px solid var(--dim);padding:11px 0;overflow:hidden;background:rgba(201,168,76,.025);}
+.ticker-track{display:flex;animation:scroll 42s linear infinite;width:max-content;}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ti{display:flex;align-items:center;gap:10px;padding:0 40px;white-space:nowrap;font-family:var(--mono);font-size:10px;color:rgba(201,168,76,.38);letter-spacing:2px;text-transform:uppercase;}
+.ti-dot{width:3px;height:3px;border-radius:50%;background:var(--gold);opacity:.28;}
+
+/* WORKFLOW SECTION */
+.workflow{padding:120px 56px;border-top:1px solid var(--dim);}
+.wf-inner{max-width:1180px;margin:0 auto;}
+.sec-tag{font-family:var(--mono);font-size:10px;letter-spacing:4px;color:rgba(201,168,76,.48);text-transform:uppercase;margin-bottom:60px;display:flex;align-items:center;gap:14px;}
+.sec-tag::before{content:'';width:18px;height:1px;background:var(--gold);opacity:.4;}
+.wf-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;}
+.wf-left{}
+.wf-h{font-family:var(--display);font-size:clamp(30px,3.8vw,50px);text-transform:uppercase;letter-spacing:-1.5px;line-height:.9;margin-bottom:18px;}
+.wf-h .out{color:transparent;-webkit-text-stroke:1px rgba(201,168,76,.32);}
+.wf-sub{font-family:var(--serif);font-style:italic;font-size:17px;color:var(--muted);line-height:1.65;max-width:300px;}
+
+/* Timeline */
+.tl{display:flex;flex-direction:column;}
+.tl-item{display:flex;gap:18px;padding:18px 0;border-bottom:1px solid var(--dim);position:relative;}
+.tl-item:last-child{border:none;}
+.tl-left-col{display:flex;flex-direction:column;align-items:center;width:32px;flex-shrink:0;}
+.tl-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(201,168,76,.22);background:var(--ink);flex-shrink:0;z-index:1;transition:all .3s;}
+.tl-item.state-done .tl-dot{background:var(--green);border-color:var(--green);box-shadow:0 0 8px rgba(29,185,84,.3);}
+.tl-item.state-active .tl-dot{background:var(--gold);border-color:var(--gold);box-shadow:0 0 12px var(--gold-glow);}
+.tl-item.state-pending .tl-dot{border-color:var(--dim);}
+.tl-connector{flex:1;width:1px;background:linear-gradient(180deg,var(--dim),transparent);margin-top:4px;}
+.tl-ts{font-family:var(--mono);font-size:8px;color:rgba(240,237,232,.16);letter-spacing:.5px;margin-top:6px;}
+.tl-body{}
+.tl-ev{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;}
+.tl-ev.r{color:rgba(217,64,64,.65);}
+.tl-ev.g{color:rgba(201,168,76,.65);}
+.tl-ev.w{color:rgba(240,237,232,.32);}
+.tl-ev.gr{color:rgba(29,185,84,.65);}
+.tl-desc{font-size:13px;color:rgba(240,237,232,.5);line-height:1.5;}
+.tl-badge{display:inline-flex;align-items:center;gap:5px;margin-top:7px;padding:3px 9px;border-radius:2px;font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;}
+.tl-badge.spd{background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.16);color:var(--gold);}
+.tl-badge.bkd{background:rgba(29,185,84,.07);border:1px solid rgba(29,185,84,.16);color:var(--green);}
+
+/* INDUSTRIES */
+.industries{padding:100px 56px;border-top:1px solid var(--dim);}
+.ind-inner{max-width:1180px;margin:0 auto;}
+.ind-hdr{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:end;margin-bottom:52px;}
+.ind-h{font-family:var(--display);font-size:clamp(26px,3.2vw,44px);text-transform:uppercase;letter-spacing:-1px;line-height:.92;}
+.ind-sub{font-family:var(--serif);font-style:italic;font-size:16px;color:var(--muted);line-height:1.65;}
+.ind-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--dim);}
+.ind-card{background:var(--ink);padding:28px 22px;border:1px solid transparent;transition:all .22s ease;cursor:default;}
+.ind-card:hover{background:var(--ink2);border-color:rgba(201,168,76,.1);}
+.ic-name{font-family:var(--display);font-size:13px;text-transform:uppercase;margin-bottom:7px;}
+.ic-eg{font-family:var(--mono);font-size:9px;color:rgba(240,237,232,.22);line-height:1.6;margin-bottom:12px;font-style:italic;}
+.ic-val{font-family:var(--display);font-size:20px;color:var(--gold);}
+.ic-vl{font-family:var(--mono);font-size:8px;color:rgba(240,237,232,.16);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+
+/* DEMO GATEWAY */
+.demo-gate{padding:120px 56px;border-top:1px solid var(--dim);background:radial-gradient(ellipse at 50% 0%,rgba(201,168,76,.04) 0%,transparent 55%);}
+.dg-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;}
+.dg-tag{font-family:var(--mono);font-size:10px;letter-spacing:4px;color:rgba(201,168,76,.48);text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.dg-tag::before{content:'';width:14px;height:1px;background:var(--gold);opacity:.4;}
+.dg-h{font-family:var(--display);font-size:clamp(30px,3.8vw,52px);text-transform:uppercase;letter-spacing:-1.5px;line-height:.9;margin-bottom:16px;}
+.dg-h em{font-style:normal;color:transparent;-webkit-text-stroke:1.5px rgba(201,168,76,.38);}
+.dg-p{font-size:14px;color:var(--muted);line-height:1.8;max-width:300px;margin-bottom:26px;}
+.dg-note{font-family:var(--mono);font-size:10px;color:rgba(240,237,232,.16);letter-spacing:2px;text-transform:uppercase;margin-top:11px;}
+
+/* Demo preview card */
+.dp-card{background:rgba(13,11,26,.92);border:1px solid rgba(201,168,76,.13);border-radius:3px;overflow:hidden;box-shadow:0 0 50px rgba(201,168,76,.05),0 40px 70px rgba(0,0,0,.5);}
+.dp-bar{padding:12px 16px;border-bottom:1px solid var(--dim);display:flex;align-items:center;justify-content:space-between;background:rgba(201,168,76,.02);}
+.dp-bar-title{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;}
+.dp-bar-live{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;color:rgba(29,185,84,.52);letter-spacing:1px;}
+.dp-live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 2s infinite;}
+.dp-steps-row{display:flex;border-bottom:1px solid var(--dim);}
+.dp-stp{flex:1;padding:8px 0;text-align:center;font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:rgba(240,237,232,.18);border-right:1px solid var(--dim);}
+.dp-stp:last-child{border:none;}
+.dp-stp.on{color:var(--gold);background:rgba(201,168,76,.03);}
+.dp-body{padding:16px;}
+.dp-sms{display:flex;flex-direction:column;gap:7px;margin-bottom:13px;}
+.dp-b{padding:8px 11px;border-radius:5px;font-size:11px;line-height:1.5;}
+.dp-b.out{background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--ink);align-self:flex-end;max-width:88%;font-weight:600;}
+.dp-b.in{background:rgba(255,255,255,.05);color:rgba(240,237,232,.62);align-self:flex-start;max-width:88%;border:1px solid var(--dim);}
+.dp-booked{padding:9px 12px;background:rgba(29,185,84,.06);border:1px solid rgba(29,185,84,.13);border-radius:3px;display:flex;align-items:center;justify-content:space-between;}
+.dp-booked-l{font-family:var(--mono);font-size:9px;color:rgba(29,185,84,.48);letter-spacing:1px;text-transform:uppercase;}
+.dp-booked-v{font-family:var(--mono);font-size:11px;color:var(--green);}
+.dp-time{font-family:var(--mono);font-size:8px;color:rgba(240,237,232,.12);text-align:center;margin-top:10px;letter-spacing:1px;}
+
+/* FINAL */
+.final{position:relative;overflow:hidden;padding:160px 56px;text-align:center;border-top:1px solid var(--dim);}
+.final-bg{position:absolute;inset:0;z-index:0;}
+.final-bg img{width:100%;height:100%;object-fit:cover;object-position:center 30%;filter:grayscale(70%) brightness(0.09) contrast(1.2);}
+.final-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,var(--ink) 0%,rgba(6,4,16,.72) 50%,var(--ink) 100%);}
+.final-glow{position:absolute;top:0;left:50%;transform:translateX(-50%);width:500px;height:180px;background:radial-gradient(ellipse,rgba(201,168,76,.06) 0%,transparent 70%);z-index:1;pointer-events:none;}
+.final-content{position:relative;z-index:2;}
+.final-h{font-family:var(--display);font-size:clamp(46px,8vw,96px);text-transform:uppercase;letter-spacing:-3px;line-height:.86;margin-bottom:22px;}
+.final-h .out{color:transparent;-webkit-text-stroke:1.5px rgba(201,168,76,.38);}
+.final-q{font-family:var(--serif);font-style:italic;font-size:clamp(15px,1.9vw,21px);color:var(--muted);margin-bottom:40px;line-height:1.65;max-width:460px;margin-left:auto;margin-right:auto;}
+.final-note{margin-top:16px;font-family:var(--mono);font-size:10px;color:rgba(240,237,232,.14);letter-spacing:2px;}
+
+/* FOOTER */
+footer{border-top:1px solid var(--dim);padding:30px 56px;display:flex;justify-content:space-between;align-items:center;}
+.f-logo{font-family:var(--mono);font-size:11px;letter-spacing:7px;color:var(--gold);}
+.f-r{font-family:var(--mono);font-size:9px;color:rgba(240,237,232,.14);letter-spacing:2px;}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease;}
+.reveal.visible{opacity:1;transform:none;}
+.d1{transition-delay:.1s;}.d2{transition-delay:.2s;}.d3{transition-delay:.3s;}.d4{transition-delay:.4s;}
+
+/* MOBILE */
+@media(max-width:900px){
+  nav{padding:15px 22px;}.nav-center{display:none;}
+  .hero{grid-template-columns:1fr;padding:0 22px;padding-top:75px;}
+  .hero-right{display:none;}
+  .workflow{padding:80px 22px;}.wf-grid{grid-template-columns:1fr;}
+  .industries{padding:75px 22px;}.ind-hdr{grid-template-columns:1fr;}.ind-grid{grid-template-columns:1fr 1fr;}
+  .demo-gate{padding:80px 22px;}.dg-inner{grid-template-columns:1fr;gap:44px;}
+  .dg-right{display:none;}
+  .final{padding:100px 22px;}
+  footer{padding:22px;flex-direction:column;gap:10px;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">NEXUS</div>
+  <div class="nav-center"><div class="pulse"></div>System Active · Leads Being Captured</div>
+  <a class="nav-cta" href="/demo">Get It Running Today</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1800&q=90&fit=crop" alt="" loading="eager">
+    <div class="hero-bg-ol"></div>
+  </div>
+  <div class="hero-grid-ol"></div>
+  <div class="hero-gold-leak"></div>
+
+  <div class="hero-left">
+    <div class="eyebrow"><div class="eyebrow-line"></div><div class="eyebrow-text">Response Infrastructure</div></div>
+    <h1 class="hero-h1">
+      <span class="l1">When Your</span>
+      <span class="l2">Team Can't,</span>
+      <span class="l3">Nexus Does.</span>
+    </h1>
+    <p class="hero-sub">Missed call recovery for businesses that cannot afford slow follow-up.</p>
+    <div class="hero-ctas">
+      <a class="btn-gold" href="/demo">Try The Live Demo →</a>
+      <a class="btn-ghost" href="#workflow">See How It Works</a>
+    </div>
+    <div class="hero-stats">
+      <div><div class="hs-n">85%</div><div class="hs-l">Never call back</div></div>
+      <div><div class="hs-n">&lt;10s</div><div class="hs-l">Response time</div></div>
+      <div><div class="hs-n">Today</div><div class="hs-l">Live on your line</div></div>
+    </div>
+  </div>
+
+  <!-- LIVE OPERATIONAL PANEL -->
+  <div class="hero-right">
+    <div class="op-panel" id="op-panel">
+      <div class="feed-event"><div class="fed miss"></div><div class="fb"><span class="fl r">Missed Call Detected</span><div class="fd">+1 (415) 555-0142 — line busy</div></div><div class="ft">just now</div></div>
+      <div class="feed-event"><div class="fed sent"></div><div class="fb"><span class="fl g">Nexus Responded</span><div class="fd">SMS delivered · 9.4s response time</div></div><div class="ft">1m ago</div></div>
+      <div class="feed-event"><div class="fed reply"></div><div class="fb"><span class="fl">Lead Replied</span><div class="fd">"2 — need a roof inspection"</div></div><div class="ft">2m ago</div></div>
+      <div class="feed-event"><div class="fed qual"></div><div class="fb"><span class="fl a">Lead Qualified</span><div class="fd">High intent · service: inspection</div></div><div class="ft">3m ago</div></div>
+      <div class="feed-event"><div class="fed book"></div><div class="fb"><span class="fl gr">Appointment Booked</span><div class="fd">Thu 10:00am · $1,400 est. value</div></div><div class="ft">4m ago</div></div>
+      <div class="typing-indicator" id="typing"><div class="dots"><span></span><span></span><span></span></div><div class="dots-label">Nexus responding</div></div>
+    </div>
+    <div class="rev-card" style="margin-top:8px"><div><div class="rev-label">Revenue Recovered Today</div><div class="rev-amt" id="rev-amt">$3,840</div></div><div class="rev-sub" id="rev-leads">↑ 2 leads</div></div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <div class="ti"><span class="ti-dot"></span>85% of missed callers never call back</div>
+    <div class="ti"><span class="ti-dot"></span>The first to respond wins 78% of the time</div>
+    <div class="ti"><span class="ti-dot"></span>62% contact a competitor immediately — not eventually</div>
+    <div class="ti"><span class="ti-dot"></span>One missed roofing call · up to $15,000 gone</div>
+    <div class="ti"><span class="ti-dot"></span>Nexus responds in under 10 seconds · 24/7</div>
+    <div class="ti"><span class="ti-dot"></span>Your line · Your leads · Operational within hours</div>
+    <div class="ti"><span class="ti-dot"></span>85% of missed callers never call back</div>
+    <div class="ti"><span class="ti-dot"></span>The first to respond wins 78% of the time</div>
+    <div class="ti"><span class="ti-dot"></span>62% contact a competitor immediately — not eventually</div>
+    <div class="ti"><span class="ti-dot"></span>One missed roofing call · up to $15,000 gone</div>
+    <div class="ti"><span class="ti-dot"></span>Nexus responds in under 10 seconds · 24/7</div>
+    <div class="ti"><span class="ti-dot"></span>Your line · Your leads · Operational within hours</div>
+  </div>
+</div>
+
+<!-- WORKFLOW -->
+<section class="workflow" id="workflow">
+  <div class="wf-inner">
+    <div class="sec-tag reveal">What Happens The Moment A Call Goes Unanswered</div>
+    <div class="wf-grid">
+      <div class="reveal">
+        <h2 class="wf-h">The System<br>Works.<br><span class="out">You Don't</span><br>Have To.</h2>
+        <p class="wf-sub" style="margin-top:18px;">Every missed call triggers a sequence. Automatic. Invisible. Done before you even know the phone rang.</p>
+      </div>
+      <div class="tl reveal d2">
+        <div class="tl-item state-done">
+          <div class="tl-left-col"><div class="tl-dot"></div><div class="tl-connector"></div><div class="tl-ts">8:41 PM</div></div>
+          <div class="tl-body"><div class="tl-ev r">Missed Call</div><div class="tl-desc">Lead calls. You're on a job. Line goes unanswered.</div></div>
+        </div>
+        <div class="tl-item state-done">
+          <div class="tl-left-col"><div class="tl-dot"></div><div class="tl-connector"></div><div class="tl-ts">8:41 PM</div></div>
+          <div class="tl-body"><div class="tl-ev g">Nexus Responds</div><div class="tl-desc">SMS lands on their phone. Sounds like your front desk. Asks how to help.</div><div class="tl-badge spd">⚡ 9.4s response</div></div>
+        </div>
+        <div class="tl-item state-done">
+          <div class="tl-left-col"><div class="tl-dot"></div><div class="tl-connector"></div><div class="tl-ts">8:42 PM</div></div>
+          <div class="tl-body"><div class="tl-ev w">Lead Replies</div><div class="tl-desc">"Need a roof inspection, storm damage last night." Nexus qualifies. Moves toward booking.</div></div>
+        </div>
+        <div class="tl-item state-active">
+          <div class="tl-left-col"><div class="tl-dot"></div><div class="tl-ts">8:44 PM</div></div>
+          <div class="tl-body"><div class="tl-ev gr">Appointment Confirmed</div><div class="tl-desc">Thursday 10am locked in. You get notified. They never considered calling someone else.</div><div class="tl-badge bkd">✓ Revenue recovered</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INDUSTRIES -->
+<section class="industries">
+  <div class="ind-inner">
+    <div class="ind-hdr reveal">
+      <h2 class="ind-h">Built For<br>High-Ticket<br>Local Services</h2>
+      <p class="ind-sub">One missed call in these industries means $3,000 to $15,000 in lost revenue. Nexus was built precisely for that cost.</p>
+    </div>
+    <div class="ind-grid">
+      <div class="ind-card reveal d1"><div class="ic-name">Roofing</div><div class="ic-eg">"Need an inspection after the storm last night"</div><div class="ic-val">$8–15k</div><div class="ic-vl">avg job value</div></div>
+      <div class="ind-card reveal d2"><div class="ic-name">HVAC</div><div class="ic-eg">"AC stopped working, have guests this weekend"</div><div class="ic-val">$3–8k</div><div class="ic-vl">avg job value</div></div>
+      <div class="ind-card reveal d3"><div class="ic-name">Dental</div><div class="ic-eg">"Looking to book a new patient appointment"</div><div class="ic-val">$500–5k</div><div class="ic-vl">per patient LTV</div></div>
+      <div class="ind-card reveal d4"><div class="ic-name">Legal</div><div class="ic-eg">"Need to speak with someone about my case"</div><div class="ic-val">$5–50k</div><div class="ic-vl">avg retainer</div></div>
+      <div class="ind-card reveal d1"><div class="ic-name">Plumbing</div><div class="ic-eg">"Pipe burst under the kitchen sink, urgent"</div><div class="ic-val">$1–5k</div><div class="ic-vl">avg job value</div></div>
+      <div class="ind-card reveal d2"><div class="ic-name">Med Spa</div><div class="ic-eg">"Interested in booking a consultation"</div><div class="ic-val">$800–3k</div><div class="ic-vl">per visit avg</div></div>
+      <div class="ind-card reveal d3"><div class="ic-name">Restoration</div><div class="ic-eg">"Water damage in the basement, need help today"</div><div class="ic-val">$5–20k</div><div class="ic-vl">avg job value</div></div>
+      <div class="ind-card reveal d4"><div class="ic-name">Real Estate</div><div class="ic-eg">"Saw the listing, want to schedule a showing"</div><div class="ic-val">$10–30k</div><div class="ic-vl">avg commission</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO GATEWAY -->
+<section class="demo-gate">
+  <div class="dg-inner">
+    <div class="reveal">
+      <div class="dg-tag">Live Demo</div>
+      <h2 class="dg-h">Experience It<br>Without<br><em>Leaving This Page.</em></h2>
+      <p class="dg-p">Select your industry. Watch the system engage a simulated lead in real time — conversation, qualification, booking. No phone number needed.</p>
+      <a class="btn-gold" href="/demo">Open The Sandbox →</a>
+      <div class="dg-note">Browser-native · No signup · Full simulation</div>
+    </div>
+    <div class="reveal d2">
+      <div class="dp-card">
+        <div class="dp-bar"><div class="dp-bar-title">Nexus Sandbox</div><div class="dp-bar-live"><div class="dp-live-dot"></div>Simulation Ready</div></div>
+        <div class="dp-steps-row">
+          <div class="dp-stp on">Pick Industry</div>
+          <div class="dp-stp">Watch It Run</div>
+          <div class="dp-stp">See Dashboard</div>
+        </div>
+        <div class="dp-body">
+          <div class="dp-sms">
+            <div class="dp-b out">Hi — sorry we missed your call. How can we help?<br>Reply 1=Urgent · 2=Book · 3=Question</div>
+            <div class="dp-b in">2 - need a roof inspection after the storm</div>
+            <div class="dp-b out">Absolutely. Is this for storm damage assessment or a routine inspection?</div>
+            <div class="dp-b in">Storm damage, pretty bad</div>
+            <div class="dp-b out">Got it — we can have someone out Thursday or Friday. Morning works best for us. Does that work?</div>
+          </div>
+          <div class="dp-booked"><div class="dp-booked-l">Appointment Requested</div><div class="dp-booked-v">Thu AM · Lead qualified ✓</div></div>
+          <div class="dp-time">Full simulation runs in the sandbox → nexusresponse.com.ng/demo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final">
+  <div class="final-bg"><img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1600&q=80&fit=crop" alt=""></div>
+  <div class="final-glow"></div>
+  <div class="final-content reveal">
+    <h2 class="final-h">
+      <span class="out">Every Day</span><br>You Wait,<br><span class="out">They Don't.</span>
+    </h2>
+    <p class="final-q">"When your team can't respond immediately, Nexus does."</p>
+    <a class="btn-gold" href="/demo" style="font-size:13px;padding:15px 46px;">Get It Running Today →</a>
+    <div class="final-note">No contract · Running on your business line today</div>
+  </div>
+</section>
+
+<footer>
+  <div class="f-logo">NEXUS</div>
+  <div class="f-r">© 2025 Nexus Response · nexusresponse.com.ng</div>
+</footer>
+
+<script>
+// Scroll reveal
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');obs.unobserve(x.target);}});},{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// Live feed
+const EVENTS=[
+  {t:'miss',l:'Missed Call Detected',lc:'r',d:'+1 (646) 555-0117 — after hours'},
+  {t:'sent',l:'Nexus Responded',lc:'g',d:'SMS delivered · 8.1s response time'},
+  {t:'reply',l:'Lead Replied',lc:'',d:'"Need HVAC repair, not cooling"'},
+  {t:'qual',l:'Lead Qualified',lc:'a',d:'High intent · emergency repair'},
+  {t:'book',l:'Appointment Booked',lc:'gr',d:'Fri 9:00am · $2,100 est. value'},
+  {t:'miss',l:'Missed Call Detected',lc:'r',d:'+1 (312) 555-0094 — line busy'},
+  {t:'sent',l:'Nexus Responded',lc:'g',d:'SMS delivered · 9.8s response time'},
+  {t:'reply',l:'Lead Replied',lc:'',d:'"Interested in Botox consultation"'},
+  {t:'qual',l:'Lead Qualified',lc:'a',d:'Medium intent · booking inquiry'},
+  {t:'book',l:'Appointment Booked',lc:'gr',d:'Sat 11:00am · $950 est. value'},
+];
+let ei=0,rAmt=3840,rLeads=2;
+function addFeedEvent(){
+  const panel=document.getElementById('op-panel');
+  if(!panel)return;
+  const typing=document.getElementById('typing');
+  if(typing)typing.classList.add('show');
+  setTimeout(()=>{
+    if(typing)typing.classList.remove('show');
+    const ev=EVENTS[ei%EVENTS.length];ei++;
+    const n=document.createElement('div');
+    n.className='feed-event new-event';
+    n.innerHTML=`<div class="fed ${ev.t}"></div><div class="fb"><span class="fl ${ev.lc}">${ev.l}</span><div class="fd">${ev.d}</div></div><div class="ft">just now</div>`;
+    panel.insertBefore(n,panel.firstChild);
+    panel.querySelectorAll('.ft').forEach((t,i)=>{t.textContent=i===0?'just now':i+'m ago';});
+    const all=panel.querySelectorAll('.feed-event');
+    if(all.length>5)all[all.length-1].remove();
+    if(ev.t==='book'){
+      rAmt+=500+Math.floor(Math.random()*1100);rLeads++;
+      const a=document.getElementById('rev-amt');
+      const l=document.getElementById('rev-leads');
+      if(a)a.textContent='$'+rAmt.toLocaleString();
+      if(l)l.textContent='↑ '+rLeads+' leads';
+    }
+  },1300);
+}
+setInterval(addFeedEvent,4200);
+</script>
+</body>
+</html>

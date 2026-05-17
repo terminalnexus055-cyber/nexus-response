@@ -253,6 +253,24 @@ def handle_sms():
 def heartbeat():
     return "Heartbeat OK", 200
 
+@app.route("/warmup", methods=["GET"])
+def warmup():
+    try:
+        supabase.table("clients").select("id").limit(1).execute()
+        logger.info("Warmup ping received.")
+        return {
+            "status": "warm",
+            "service": "nexus-response",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }, 200
+    except Exception as e:
+        logger.error(f"Warmup failed: {str(e)}")
+        return {"status": "error", "message": str(e)}, 500
+
+@app.route("/health", methods=["GET"])
+def health():
+    return {"status": "ok"}, 200
+
 # ─── DASHBOARD ───────────────────────────────────────────────────────────────
 
 @app.route("/dashboard/<token>", methods=["GET"])

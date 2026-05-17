@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus — Live Sandbox Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Cormorant+Garamond:ital,wght@0,600;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --ink:#060410;--ink2:#0D0B1A;--ink3:#161222;
+  --gold:#C9A84C;--gold2:#E2C06A;--gold-glow:rgba(201,168,76,0.18);
+  --red:#D94040;--green:#1DB954;--amber:#E08020;
+  --white:#F0EDE8;--muted:rgba(240,237,232,0.36);
+  --dim:rgba(240,237,232,0.07);--dim2:rgba(240,237,232,0.04);
+  --mono:'IBM Plex Mono',monospace;--display:'Archivo Black',sans-serif;
+  --serif:'Cormorant Garamond',serif;--body:'DM Sans',sans-serif;
+}
+body{background:var(--ink);color:var(--white);font-family:var(--body);overflow-x:hidden;-webkit-font-smoothing:antialiased;height:100vh;display:flex;flex-direction:column;}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:1px solid var(--dim);background:rgba(6,4,16,0.97);flex-shrink:0;}
+.nav-logo{font-family:var(--mono);font-size:12px;letter-spacing:7px;color:var(--white);}
+.nav-back{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:8px;transition:color .2s;}
+.nav-back:hover{color:var(--gold);}
+.nav-back::before{content:'←';}
+.nav-status{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;color:rgba(29,185,84,.55);letter-spacing:2px;text-transform:uppercase;}
+.nav-pulse{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 7px var(--green);animation:blink 3s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* MAIN LAYOUT */
+.main{display:grid;grid-template-columns:320px 1fr 300px;flex:1;overflow:hidden;min-height:0;}
+
+/* LEFT — SETUP PANEL */
+.setup-panel{border-right:1px solid var(--dim);display:flex;flex-direction:column;overflow-y:auto;background:var(--ink2);}
+.setup-section{padding:20px;border-bottom:1px solid var(--dim);}
+.setup-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:rgba(201,168,76,.5);text-transform:uppercase;margin-bottom:14px;}
+.setup-h{font-family:var(--display);font-size:18px;text-transform:uppercase;letter-spacing:-0.5px;margin-bottom:6px;line-height:1.1;}
+.setup-sub{font-size:12px;color:var(--muted);line-height:1.6;}
+
+.ind-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.ind-btn{padding:10px 8px;background:var(--ink);border:1px solid var(--dim);cursor:pointer;transition:all .2s;text-align:left;border-radius:2px;}
+.ind-btn:hover{background:var(--ink3);border-color:rgba(201,168,76,.2);}
+.ind-btn.active{background:rgba(201,168,76,.08);border-color:var(--gold);}
+.ind-btn-name{font-family:var(--display);font-size:11px;text-transform:uppercase;letter-spacing:-.3px;color:var(--white);display:block;margin-bottom:2px;}
+.ind-btn-type{font-family:var(--mono);font-size:8px;color:var(--muted);letter-spacing:.5px;}
+
+.scenario-list{display:flex;flex-direction:column;gap:6px;}
+.scen-btn{padding:10px 12px;background:var(--ink);border:1px solid var(--dim);cursor:pointer;transition:all .2s;text-align:left;border-radius:2px;}
+.scen-btn:hover{background:var(--ink3);border-color:rgba(201,168,76,.2);}
+.scen-btn.active{background:rgba(201,168,76,.06);border-color:rgba(201,168,76,.35);}
+.scen-name{font-size:12px;color:var(--white);display:block;margin-bottom:2px;}
+.scen-type{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;}
+.scen-type.urgent{color:rgba(217,64,64,.7);}
+.scen-type.book{color:rgba(201,168,76,.7);}
+.scen-type.query{color:rgba(240,237,232,.35);}
+
+.sim-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--ink);font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase;border:none;cursor:pointer;border-radius:2px;transition:all .2s;margin-top:4px;}
+.sim-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 28px rgba(201,168,76,.25);}
+.sim-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.reset-btn{width:100%;padding:10px;background:transparent;color:var(--muted);border:1px solid var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .2s;margin-top:6px;}
+.reset-btn:hover{border-color:rgba(201,168,76,.3);color:var(--gold);}
+
+/* CENTER — CONVERSATION */
+.convo-panel{display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.convo-header{padding:16px 24px;border-bottom:1px solid var(--dim);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:rgba(6,4,16,.6);}
+.convo-title{font-family:var(--mono);font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;}
+.convo-meta{font-family:var(--mono);font-size:9px;color:var(--muted);letter-spacing:1px;}
+
+.missed-call-overlay{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:rgba(6,4,16,.92);backdrop-filter:blur(8px);transition:opacity .5s ease;}
+.missed-call-overlay.hidden{opacity:0;pointer-events:none;}
+.mc-card{text-align:center;padding:40px;}
+.mc-icon{width:72px;height:72px;border-radius:50%;background:rgba(217,64,64,.1);border:2px solid rgba(217,64,64,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;animation:mcRing 1.5s ease-in-out;}
+@keyframes mcRing{0%{box-shadow:0 0 0 0 rgba(217,64,64,.4)}70%{box-shadow:0 0 0 20px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.mc-icon svg{stroke:var(--red);width:32px;height:32px;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.mc-title{font-family:var(--display);font-size:20px;text-transform:uppercase;margin-bottom:8px;}
+.mc-detail{font-size:13px;color:var(--muted);margin-bottom:6px;}
+.mc-time{font-family:var(--mono);font-size:10px;color:rgba(217,64,64,.6);letter-spacing:2px;text-transform:uppercase;}
+
+.messages{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:10px;}
+.messages::-webkit-scrollbar{width:4px;}
+.messages::-webkit-scrollbar-track{background:transparent;}
+.messages::-webkit-scrollbar-thumb{background:var(--dim);border-radius:2px;}
+
+.msg-group{display:flex;flex-direction:column;gap:4px;}
+.msg-label{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;}
+.msg-label.nexus{color:rgba(201,168,76,.5);}
+.msg-label.lead{color:rgba(240,237,232,.25);}
+.bubble{padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.55;max-width:85%;animation:bubbleIn .3s ease;}
+@keyframes bubbleIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.bubble.nexus{background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--ink);font-weight:500;align-self:flex-end;border-bottom-right-radius:3px;}
+.bubble.lead{background:rgba(255,255,255,.06);color:rgba(240,237,232,.75);align-self:flex-start;border:1px solid var(--dim);border-bottom-left-radius:3px;}
+.bubble.system{background:rgba(29,185,84,.06);border:1px solid rgba(29,185,84,.15);color:rgba(29,185,84,.8);align-self:center;font-family:var(--mono);font-size:10px;letter-spacing:1px;text-align:center;border-radius:4px;}
+
+.typing-bubble{display:none;align-items:center;gap:6px;padding:10px 14px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.1);border-radius:8px;width:fit-content;border-bottom-left-radius:3px;}
+.typing-bubble.show{display:flex;animation:bubbleIn .3s ease;}
+.t-dots{display:flex;gap:3px;}
+.t-dots span{width:5px;height:5px;border-radius:50%;background:rgba(201,168,76,.4);}
+.t-dots span:nth-child(1){animation:dot 1.2s 0s infinite;}
+.t-dots span:nth-child(2){animation:dot 1.2s .2s infinite;}
+.t-dots span:nth-child(3){animation:dot 1.2s .4s infinite;}
+@keyframes dot{0%,80%,100%{transform:scale(.6);opacity:.3}40%{transform:scale(1);opacity:1}}
+.typing-label-text{font-family:var(--mono);font-size:9px;color:rgba(201,168,76,.4);letter-spacing:1px;text-transform:uppercase;}
+
+.response-bar{font-family:var(--mono);font-size:9px;color:rgba(201,168,76,.35);letter-spacing:2px;text-transform:uppercase;text-align:center;padding:8px;border-top:1px solid var(--dim);flex-shrink:0;}
+
+/* RIGHT — DASHBOARD */
+.dash-panel{border-left:1px solid var(--dim);display:flex;flex-direction:column;overflow-y:auto;background:var(--ink2);}
+.dash-section{padding:16px;border-bottom:1px solid var(--dim);}
+.dash-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:rgba(201,168,76,.45);text-transform:uppercase;margin-bottom:12px;}
+
+/* Lead card */
+.lead-card{background:var(--ink);border:1px solid var(--dim);border-radius:3px;padding:14px;transition:all .3s;}
+.lead-card.active{border-color:rgba(201,168,76,.25);}
+.lc-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.lc-phone{font-family:var(--mono);font-size:11px;color:var(--white);}
+.lc-status{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:2px;}
+.lc-status.new{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);color:var(--gold);}
+.lc-status.active{background:rgba(232,160,32,.08);border:1px solid rgba(232,160,32,.2);color:var(--amber);}
+.lc-status.qualified{background:rgba(29,185,84,.08);border:1px solid rgba(29,185,84,.2);color:var(--green);}
+.lc-status.booked{background:rgba(29,185,84,.12);border:1px solid rgba(29,185,84,.25);color:var(--green);}
+.lc-intent{font-size:12px;color:var(--muted);margin-bottom:4px;}
+.lc-industry{font-family:var(--mono);font-size:9px;color:rgba(240,237,232,.22);letter-spacing:1px;text-transform:uppercase;}
+.lc-stage{margin-top:10px;padding-top:10px;border-top:1px solid var(--dim);}
+.lc-stage-label{font-family:var(--mono);font-size:8px;color:rgba(240,237,232,.2);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.stage-track{display:flex;gap:3px;}
+.stage-pip{flex:1;height:3px;border-radius:1px;background:var(--dim);transition:all .4s ease;}
+.stage-pip.done{background:var(--gold);}
+.stage-pip.active{background:var(--gold);animation:pipPulse 1.5s ease-in-out infinite;}
+@keyframes pipPulse{0%,100%{opacity:1}50%{opacity:.5}}
+.stage-pip.booked-pip{background:var(--green);}
+
+/* Metrics */
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.metric{background:var(--ink);border:1px solid var(--dim);border-radius:3px;padding:12px;transition:all .3s;}
+.metric.highlight{border-color:rgba(201,168,76,.2);}
+.metric-n{font-family:var(--display);font-size:22px;color:var(--gold);line-height:1;}
+.metric-n.green{color:var(--green);}
+.metric-n.red{color:var(--red);}
+.metric-l{font-family:var(--mono);font-size:8px;color:rgba(240,237,232,.2);letter-spacing:1px;text-transform:uppercase;margin-top:4px;}
+
+/* Activity feed */
+.activity-feed{display:flex;flex-direction:column;gap:6px;}
+.af-item{display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid var(--dim2);animation:feedIn .3s ease;}
+@keyframes feedIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
+.af-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.af-dot.r{background:var(--red);}
+.af-dot.g{background:rgba(201,168,76,.6);}
+.af-dot.gr{background:var(--green);}
+.af-dot.a{background:var(--amber);}
+.af-text{font-size:11px;color:rgba(240,237,232,.55);line-height:1.4;flex:1;}
+.af-time{font-family:var(--mono);font-size:8px;color:rgba(240,237,232,.15);flex-shrink:0;margin-top:2px;}
+
+/* IDLE STATE */
+.idle-state{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;color:var(--muted);}
+.idle-icon{width:48px;height:48px;border-radius:50%;border:1.5px solid var(--dim);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.idle-icon svg{stroke:var(--muted);width:22px;height:22px;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.idle-title{font-family:var(--display);font-size:16px;text-transform:uppercase;letter-spacing:-.5px;margin-bottom:6px;color:rgba(240,237,232,.3);}
+.idle-sub{font-size:12px;color:rgba(240,237,232,.18);line-height:1.6;}
+
+/* Mobile */
+@media(max-width:768px){
+  .main{grid-template-columns:1fr;grid-template-rows:auto 1fr auto;}
+  .setup-panel{border-right:none;border-bottom:1px solid var(--dim);max-height:40vh;overflow-y:auto;}
+  .dash-panel{border-left:none;border-top:1px solid var(--dim);max-height:35vh;overflow-y:auto;}
+  .convo-panel{min-height:300px;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-back" href="/">Nexus</a>
+  <div class="nav-status"><div class="nav-pulse"></div>Sandbox Active</div>
+  <div class="nav-logo" style="letter-spacing:3px;font-size:10px;color:var(--muted)">Live Demo</div>
+</nav>
+
+<div class="main">
+
+  <!-- LEFT: SETUP -->
+  <div class="setup-panel">
+    <div class="setup-section">
+      <div class="setup-label">Sandbox</div>
+      <div class="setup-h">Simulate a<br>Missed Call</div>
+      <p class="setup-sub" style="margin-top:6px;">Pick an industry and scenario. Watch Nexus engage the lead in real time.</p>
+    </div>
+
+    <div class="setup-section">
+      <div class="setup-label">01 — Industry</div>
+      <div class="ind-grid" id="ind-grid">
+        <button class="ind-btn" onclick="pickInd('roofing','Roofing',this)"><span class="ind-btn-name">Roofing</span><span class="ind-btn-type">Residential</span></button>
+        <button class="ind-btn" onclick="pickInd('hvac','HVAC',this)"><span class="ind-btn-name">HVAC</span><span class="ind-btn-type">Heating · Cooling</span></button>
+        <button class="ind-btn" onclick="pickInd('dental','Dental',this)"><span class="ind-btn-name">Dental</span><span class="ind-btn-type">Clinic</span></button>
+        <button class="ind-btn" onclick="pickInd('legal','Legal',this)"><span class="ind-btn-name">Legal</span><span class="ind-btn-type">Attorney</span></button>
+        <button class="ind-btn" onclick="pickInd('plumbing','Plumbing',this)"><span class="ind-btn-name">Plumbing</span><span class="ind-btn-type">Emergency</span></button>
+        <button class="ind-btn" onclick="pickInd('medspa','Med Spa',this)"><span class="ind-btn-name">Med Spa</span><span class="ind-btn-type">Aesthetics</span></button>
+      </div>
+    </div>
+
+    <div class="setup-section">
+      <div class="setup-label">02 — Scenario</div>
+      <div class="scenario-list" id="scen-list">
+        <div class="idle-sub" style="font-size:11px;color:rgba(240,237,232,.2);">Select an industry first</div>
+      </div>
+    </div>
+
+    <div class="setup-section">
+      <button class="sim-btn" id="sim-btn" disabled onclick="startSimulation()">Simulate Missed Call →</button>
+      <button class="reset-btn" onclick="resetAll()" style="display:none" id="reset-btn">Reset Sandbox</button>
+    </div>
+  </div>
+
+  <!-- CENTER: CONVERSATION -->
+  <div class="convo-panel">
+    <div class="convo-header">
+      <div class="convo-title">Conversation</div>
+      <div class="convo-meta" id="convo-meta">No simulation running</div>
+    </div>
+
+    <!-- Missed call overlay -->
+    <div class="missed-call-overlay" id="mc-overlay" style="opacity:0;pointer-events:none;">
+      <div class="mc-card">
+        <div class="mc-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.95-1.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="mc-title" id="mc-title">Missed Call</div>
+        <div class="mc-detail" id="mc-detail">+1 (415) 555-0142</div>
+        <div class="mc-time" id="mc-time">Incoming · Unanswered</div>
+      </div>
+    </div>
+
+    <div class="messages" id="messages">
+      <div class="idle-state">
+        <div class="idle-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.95-1.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="idle-title">Waiting for call</div>
+        <div class="idle-sub">Select an industry and scenario,<br>then trigger the simulation.</div>
+      </div>
+    </div>
+
+    <div class="typing-bubble" id="typing-bubble">
+      <div class="t-dots"><span></span><span></span><span></span></div>
+      <div class="typing-label-text">Nexus responding</div>
+    </div>
+
+    <div class="response-bar" id="resp-bar" style="display:none">
+      System responding · <span id="resp-timer">9.4s</span>
+    </div>
+  </div>
+
+  <!-- RIGHT: DASHBOARD -->
+  <div class="dash-panel">
+    <div class="dash-section">
+      <div class="dash-label">Lead Status</div>
+      <div id="lead-card-wrap">
+        <div class="idle-sub" style="font-size:11px;color:rgba(240,237,232,.2);padding:4px 0;">No active lead</div>
+      </div>
+    </div>
+
+    <div class="dash-section">
+      <div class="dash-label">Metrics</div>
+      <div class="metric-grid">
+        <div class="metric"><div class="metric-n" id="m-resp">—</div><div class="metric-l">Response Time</div></div>
+        <div class="metric"><div class="metric-n" id="m-stage">—</div><div class="metric-l">Current Stage</div></div>
+        <div class="metric"><div class="metric-n green" id="m-leads">0</div><div class="metric-l">Leads Today</div></div>
+        <div class="metric"><div class="metric-n" id="m-intent">—</div><div class="metric-l">Intent Level</div></div>
+      </div>
+    </div>
+
+    <div class="dash-section" style="flex:1">
+      <div class="dash-label">Activity Log</div>
+      <div class="activity-feed" id="activity-feed">
+        <div class="idle-sub" style="font-size:11px;color:rgba(240,237,232,.18);">Activity appears here during simulation</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── SCENARIOS BY INDUSTRY ──
+const SCENARIOS = {
+  roofing:[
+    {id:'storm',name:'Storm damage — needs inspection',type:'book',
+     script:[
+       {from:'nexus',text:'Hi — sorry we missed your call. This is Apex Roofing. How can we help?\nReply 1 = Emergency · 2 = Book inspection · 3 = Question'},
+       {from:'lead',text:'2 — need a roof inspection, we had bad hail last night'},
+       {from:'nexus',text:'Absolutely. Is this for an insurance claim or just a damage assessment?'},
+       {from:'lead',text:'Insurance claim, my adjuster is coming Friday'},
+       {from:'nexus',text:'Perfect — we\'ll want to document everything before then. We can have someone out Thursday morning. Does that work?'},
+       {from:'lead',text:'Thursday works, what time?'},
+       {from:'nexus',text:'We\'ll confirm 8am Thursday. You\'ll get a reminder the night before. Is this address correct: the number you called from?'},
+       {from:'lead',text:'Yes that\'s right'},
+       {from:'nexus',text:'All set. Inspection confirmed for Thursday 8am. Our team will have full documentation ready before your adjuster visit. 👍'},
+       {from:'system',text:'✓ Appointment Booked · Thu 8:00am · Lead Qualified'}
+     ]},
+    {id:'leak',name:'Active roof leak — urgent',type:'urgent',
+     script:[
+       {from:'nexus',text:'Hi — sorry we missed your call. This is Apex Roofing. How can we help?\nReply 1 = Emergency · 2 = Book · 3 = Question'},
+       {from:'lead',text:'1 — we have water coming through the ceiling right now'},
+       {from:'nexus',text:'⚠️ Understood — this is urgent. I\'m alerting our emergency team right now. Is the leak over any electrical or valuables?'},
+       {from:'lead',text:'It\'s near the kitchen'},
+       {from:'nexus',text:'Move anything important away from that area. Our crew is being notified now. Estimated arrival: 45–60 minutes. We\'ll call you shortly to confirm.'},
+       {from:'system',text:'🚨 Emergency Escalated · Owner Alerted · ETA 45min'}
+     ]}
+  ],
+  hvac:[
+    {id:'noac',name:'AC not working — book repair',type:'book',
+     script:[
+       {from:'nexus',text:'Hi — sorry we missed your call. This is Comfort Pro HVAC. How can we help?\nReply 1 = Emergency · 2 = Schedule · 3 = Question'},
+       {from:'lead',text:'2 — my AC stopped working and it\'s 95 degrees'},
+       {from:'nexus',text:'That\'s a tough one. Is this a central air system or a window unit?'},
+       {from:'lead',text:'Central air, it\'s just blowing warm'},
+       {from:'nexus',text:'Most likely a refrigerant or compressor issue. We can have a tech out tomorrow morning — does 8–10am work?'},
+       {from:'lead',text:'Yes that works'},
+       {from:'nexus',text:'Booked. Tomorrow 8–10am window. Bring any warranty docs if you have them. We\'ll call 30 min before arrival.'},
+       {from:'system',text:'✓ Appointment Booked · Tomorrow 8–10am · Lead Qualified'}
+     ]},
+    {id:'heat',name:'No heat — emergency',type:'urgent',
+     script:[
+       {from:'nexus',text:'Hi — sorry we missed your call. This is Comfort Pro HVAC. How can we help?\nReply 1 = Emergency · 2 = Schedule · 3 = Question'},
+       {from:'lead',text:'1 emergency — no heat and it\'s freezing, I have kids'},
+       {from:'nexus',text:'⚠️ We\'re on it. I\'m alerting our on-call tech now. Is anyone in the home at risk — elderly or medical needs?'},
+       {from:'lead',text:'No just my kids, it\'s 58 degrees inside'},
+       {from:'nexus',text:'On-call tech is being dispatched. ETA 30–45 minutes. Keep everyone in one room with blankets. We\'ll call you in 5 minutes.'},
+       {from:'system',text:'🚨 Emergency Escalated · On-Call Tech Dispatched · ETA 30min'}
+     ]}
+  ],
+  dental:[
+    {id:'newpat',name:'New patient — book cleaning',type:'book',
+     script:[
+       {from:'nexus',text:'Hi — sorry we missed your call. This is Bright Smile Dental. How can we help?\nReply 1 = Urgent dental issue · 2 = Book appointment · 3 = Question'},
+       {from:'lead',text:'2 — looking to book a cleaning as a new patient'},
+       {from:'nexus',text:'Welcome! Are you looking for a routine cleaning + exam, or do you have any specific concerns?'},
+       {from:'lead',text:'Just routine, haven\'t been in about 2 years'},
+       {from:'nexus',text:'No worries at all — we\'ll do a full exam and cleaning. We have Tuesday at 2pm or Thursday at 10am. Which works?'},
+       {from:'lead',text:'Thursday at 10'},
+       {from:'nexus',text:'Thursday 10am confirmed. We\'ll send new patient forms by email — what address should we use?'},
+       {from:'lead',text:'sarah@email.com'},
+       {from:'nexus',text:'Perfect. Forms sent to sarah@email.com. See you Thursday! 😊'},
+       {from:'system',text:'✓ Appointment Booked · Thu 10:00am · New Patient Intake Sent'}
+     ]},
+    {id:'pain',name:'Tooth pain — urgent',type:'urgent',
+     script:[
+       {from:'nexus',text:'Hi — sorry we missed your call. This is Bright Smile Dental. How can we help?\nReply 1 = Urgent dental issue · 2 = Book · 3 = Question'},
+       {from:'lead',text:'1 — I have really bad tooth pain, been going on 2 days'},
+       {from:'nexus',text:'I\'m sorry to hear that — 2 days of pain definitely needs attention. Are you experiencing swelling or any fever?'},
+       {from:'lead',text:'Some swelling on my jaw'},
+       {from:'nexus',text:'Swelling + pain can indicate infection — this needs same-day care. I\'m flagging this as urgent. We\'ll call you within 15 minutes to fit you in today.'},
+       {from:'system',text:'🚨 Urgent Care Flagged · Same-Day Slot Needed · Dr. Notified'}
+     ]}
+  ],
+  legal:[
+    {id:'consult',name:'Personal injury — consult request',type:'book',
+     script:[
+       {from:'nexus',text:'Hi — sorry we missed your call. This is Sterling Law Group. How can we help?\nReply 1 = Urgent legal matter · 2 = Schedule consultation · 3 = Question'},
+       {from:'lead',text:'2 — I was in a car accident last week and want to know my options'},
+       {from:'nexus',text:'I\'m sorry to hear about your accident. Were you injured, and did you file a police report?'},
+       {from:'lead',text:'Yes I have whiplash and yes there was a police report'},
+       {from:'nexus',text:'That\'s important — documented injury + police report significantly strengthens a claim. Our consultation is free. We have Thursday at 3pm or Friday at 11am available.'},
+       {from:'lead',text:'Thursday 3pm'},
+       {from:'nexus',text:'Thursday 3pm confirmed with an attorney. In the meantime, don\'t speak to the other party\'s insurance without us. We\'ll email a prep guide shortly.'},
+       {from:'system',text:'✓ Consultation Booked · Thu 3:00pm · PI Case · High Value Lead'}
+     ]}
+  ],
+  plumbing:[
+    {id:'burst',name:'Burst pipe — emergency',type:'urgent',
+     script:[
+       {from:'nexus',text:'Hi — sorry we missed your call. This is Flow Right Plumbing. How can we help?\nReply 1 = Emergency · 2 = Schedule · 3 = Question'},
+       {from:'lead',text:'1 — pipe burst under my kitchen sink, water everywhere'},
+       {from:'nexus',text:'⚠️ Emergency — shut off the water valve under the sink or your main shutoff right now. Can you do that?'},
+       {from:'lead',text:'Done, turned off the main'},
+       {from:'nexus',text:'Good. I\'m dispatching our emergency plumber now. ETA is 20–30 minutes. They\'ll call when 5 minutes away. Is there significant water damage?'},
+       {from:'lead',text:'Some on the floor, not too bad'},
+       {from:'nexus',text:'Good — put down towels and move anything electrical. Plumber is on the way. ✓'},
+       {from:'system',text:'🚨 Emergency Dispatched · Plumber ETA 20min · Water Mitigation Advised'}
+     ]}
+  ],
+  medspa:[
+    {id:'botox',name:'Botox inquiry — book consult',type:'book',
+     script:[
+       {from:'nexus',text:'Hi — sorry we missed your call. This is Revive Med Spa. How can we help?\nReply 1 = Urgent · 2 = Book consultation · 3 = Pricing question'},
+       {from:'lead',text:'2 — I\'m interested in Botox, first time'},
+       {from:'nexus',text:'Exciting! For first-timers, we always start with a free 15-minute consultation — no pressure, just an honest conversation. Have you had any injectables before?'},
+       {from:'lead',text:'No this would be my first time'},
+       {from:'nexus',text:'Perfect — we\'ll walk you through everything. We have Saturday at 10am or Monday at 1pm. Which works?'},
+       {from:'lead',text:'Saturday at 10'},
+       {from:'nexus',text:'Saturday 10am confirmed with Dr. Chen. We\'ll send a pre-consultation form by text shortly. See you then! ✨'},
+       {from:'system',text:'✓ Consultation Booked · Sat 10:00am · New Patient · Dr. Chen'}
+     ]}
+  ]
+};
+
+// Phone numbers for realism
+const PHONES = ['+1 (415) 555-0142','+1 (646) 555-0198','+1 (312) 555-0067','+1 (702) 555-0211','+1 (214) 555-0089'];
+const NAMES = ['James R.','Sarah M.','Mike T.','Dana K.','Chris W.','Pat L.'];
+
+let selectedInd = null;
+let selectedIndName = null;
+let selectedScen = null;
+let isRunning = false;
+let leadsToday = 0;
+
+function pickInd(id, name, btn){
+  if(isRunning) return;
+  selectedInd = id;
+  selectedIndName = name;
+  document.querySelectorAll('.ind-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Populate scenarios
+  const list = document.getElementById('scen-list');
+  list.innerHTML = '';
+  selectedScen = null;
+  SCENARIOS[id].forEach(s=>{
+    const el = document.createElement('button');
+    el.className = 'scen-btn';
+    el.innerHTML = `<span class="scen-name">${s.name}</span><span class="scen-type ${s.type}">${s.type === 'urgent' ? '⚡ Emergency' : s.type === 'book' ? '📅 Booking' : '❓ Query'}</span>`;
+    el.onclick = () => pickScen(s, el);
+    list.appendChild(el);
+  });
+  checkReady();
+}
+
+function pickScen(scen, btn){
+  if(isRunning) return;
+  selectedScen = scen;
+  document.querySelectorAll('.scen-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  checkReady();
+}
+
+function checkReady(){
+  const btn = document.getElementById('sim-btn');
+  btn.disabled = !(selectedInd && selectedScen);
+}
+
+function addActivity(text, dotClass){
+  const feed = document.getElementById('activity-feed');
+  if(feed.querySelector('.idle-sub')) feed.innerHTML = '';
+  const item = document.createElement('div');
+  item.className = 'af-item';
+  const now = new Date();
+  item.innerHTML = `<div class="af-dot ${dotClass}"></div><div class="af-text">${text}</div><div class="af-time">${now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})}</div>`;
+  feed.insertBefore(item, feed.firstChild);
+}
+
+function updateLeadCard(status, intent, stage){
+  const wrap = document.getElementById('lead-card-wrap');
+  const stages = ['Triage','Qualifying','Booking','Qualified'];
+  const stageIdx = stages.indexOf(stage);
+  const phone = PHONES[Math.floor(Math.random()*PHONES.length)];
+  wrap.innerHTML = `
+    <div class="lead-card ${status !== 'new' ? 'active':''}">
+      <div class="lc-row">
+        <div class="lc-phone">${phone}</div>
+        <div class="lc-status ${status}">${status.charAt(0).toUpperCase()+status.slice(1)}</div>
+      </div>
+      <div class="lc-intent">${intent}</div>
+      <div class="lc-industry">${selectedIndName} · ${selectedScen.type === 'urgent' ? 'Emergency' : 'Booking'}</div>
+      <div class="lc-stage">
+        <div class="lc-stage-label">Conversation Stage</div>
+        <div class="stage-track">
+          ${stages.map((s,i)=>`<div class="stage-pip ${i<stageIdx?'done':i===stageIdx?'active':''} ${status==='booked'?'booked-pip':''}"></div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+async function startSimulation(){
+  if(isRunning || !selectedScen) return;
+  isRunning = true;
+  leadsToday++;
+
+  document.getElementById('sim-btn').style.display = 'none';
+  document.getElementById('reset-btn').style.display = 'block';
+
+  // Show missed call overlay
+  const overlay = document.getElementById('mc-overlay');
+  const phone = PHONES[Math.floor(Math.random()*PHONES.length)];
+  document.getElementById('mc-detail').textContent = phone;
+  document.getElementById('mc-title').textContent = `Missed Call — ${selectedIndName}`;
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'auto';
+
+  addActivity(`Missed call detected from ${phone}`, 'r');
+  updateMetrics('—','Triage',leadsToday,'Detecting...');
+  updateLeadCard('new', selectedScen.name, 'Triage');
+
+  await sleep(2000);
+  overlay.style.opacity = '0';
+  overlay.style.pointerEvents = 'none';
+
+  // Clear idle state
+  const msgs = document.getElementById('messages');
+  msgs.innerHTML = '';
+  document.getElementById('convo-meta').textContent = `${selectedIndName} · ${phone}`;
+
+  // Run script
+  const script = selectedScen.script;
+  let stageIndex = 0;
+  const stages = ['Triage','Qualifying','Booking','Qualified'];
+  let responseTime = (8.5 + Math.random()*2).toFixed(1)+'s';
+
+  for(let i=0; i<script.length; i++){
+    const line = script[i];
+
+    if(line.from === 'nexus'){
+      // Show typing
+      const tb = document.getElementById('typing-bubble');
+      tb.classList.add('show');
+      document.getElementById('resp-bar').style.display = 'block';
+
+      const delay = i === 0 ? 1200 : 1600 + Math.random()*800;
+      await sleep(delay);
+
+      tb.classList.remove('show');
+      document.getElementById('resp-bar').style.display = 'none';
+
+      addBubble('nexus', line.text);
+      if(i===0){
+        addActivity(`Nexus responded in ${responseTime}`, 'g');
+        updateMetrics(responseTime, stages[stageIndex], leadsToday, 'Low');
+        updateLeadCard('active', selectedScen.name, stages[stageIndex]);
+      }
+    } else if(line.from === 'lead'){
+      await sleep(1800 + Math.random()*1200);
+      addBubble('lead', line.text);
+      stageIndex = Math.min(stageIndex+1, stages.length-1);
+      const intent = stageIndex >= 2 ? 'High' : 'Medium';
+      updateMetrics(responseTime, stages[stageIndex], leadsToday, intent);
+      updateLeadCard('active', selectedScen.name, stages[stageIndex]);
+      addActivity(`Lead replied · Stage: ${stages[stageIndex]}`, 'a');
+    } else if(line.from === 'system'){
+      await sleep(600);
+      addBubble('system', line.text);
+      const isBooked = line.text.includes('Booked') || line.text.includes('Confirmed');
+      const isUrgent = line.text.includes('Emergency') || line.text.includes('Escalated');
+      if(isBooked){
+        updateMetrics(responseTime, 'Booked', leadsToday, 'High');
+        updateLeadCard('booked', selectedScen.name, 'Qualified');
+        addActivity('Appointment booked · Revenue recovered', 'gr');
+        document.getElementById('m-stage').style.color = 'var(--green)';
+      } else if(isUrgent){
+        updateMetrics(responseTime, 'Escalated', leadsToday, 'Critical');
+        updateLeadCard('active', selectedScen.name, 'Qualifying');
+        addActivity('Emergency escalated · Owner alerted', 'r');
+        document.getElementById('m-intent').style.color = 'var(--red)';
+      }
+    }
+  }
+}
+
+function addBubble(from, text){
+  const msgs = document.getElementById('messages');
+  const el = document.createElement('div');
+  if(from === 'system'){
+    el.className = 'bubble system';
+    el.textContent = text;
+  } else {
+    el.className = 'msg-group';
+    const lbl = document.createElement('div');
+    lbl.className = `msg-label ${from}`;
+    lbl.textContent = from === 'nexus' ? 'NEXUS' : 'LEAD';
+    const b = document.createElement('div');
+    b.className = `bubble ${from}`;
+    b.textContent = text;
+    el.appendChild(lbl);
+    el.appendChild(b);
+  }
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function updateMetrics(resp, stage, leads, intent){
+  document.getElementById('m-resp').textContent = resp;
+  document.getElementById('m-stage').textContent = stage;
+  document.getElementById('m-leads').textContent = leads;
+  document.getElementById('m-intent').textContent = intent;
+}
+
+function resetAll(){
+  isRunning = false;
+  selectedScen = null;
+  document.querySelectorAll('.scen-btn').forEach(b=>b.classList.remove('active'));
+
+  document.getElementById('messages').innerHTML = `
+    <div class="idle-state">
+      <div class="idle-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.95-1.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+      <div class="idle-title">Simulation complete</div>
+      <div class="idle-sub">Pick a new scenario to run again.</div>
+    </div>`;
+
+  document.getElementById('lead-card-wrap').innerHTML = '<div class="idle-sub" style="font-size:11px;color:rgba(240,237,232,.2);padding:4px 0;">No active lead</div>';
+  document.getElementById('convo-meta').textContent = 'No simulation running';
+  document.getElementById('sim-btn').style.display = 'block';
+  document.getElementById('reset-btn').style.display = 'none';
+  document.getElementById('m-stage').style.color = '';
+  document.getElementById('m-intent').style.color = '';
+  checkReady();
+}
+
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+</script>
+</body>
+</html>

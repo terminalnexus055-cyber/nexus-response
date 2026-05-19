@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus Response — Live Sandbox Demo</title>
+<meta name="description" content="Try the Nexus Response sandbox. Simulate a missed call and watch the system engage, qualify, and book a lead in real time.">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="Nexus Response — Live Sandbox">
+<meta property="og:description" content="Simulate a missed call. Watch Nexus engage, qualify, and book a lead in real time.">
+<meta property="og:image" content="https://nexusresponse.com.ng/static/og-image.png">
+<meta property="og:url" content="https://nexusresponse.com.ng/demo">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://nexusresponse.com.ng/static/og-image.png">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --ink:#07050F;--ink2:#0D0B1C;--ink3:#141228;--surface:#1A1730;
+  --gold:#C9A84C;--gold2:#E2C06A;
+  --blue:#4A90D9;--blue-dim:rgba(74,144,217,0.12);
+  --red:#D94040;--red-dim:rgba(217,64,64,0.1);
+  --green:#1DB954;--green-dim:rgba(29,185,84,0.08);
+  --amber:#E08020;--amber-dim:rgba(224,128,32,0.1);
+  --white:#F0EDE8;--muted:rgba(240,237,232,0.36);
+  --dim:rgba(240,237,232,0.07);--dim2:rgba(240,237,232,0.04);
+  --mono:'IBM Plex Mono',monospace;--display:'Archivo Black',sans-serif;--body:'DM Sans',sans-serif;
+}
+body{background:var(--ink);color:var(--white);font-family:var(--body);overflow:hidden;height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
+
+/* MOBILE WARNING */
+.mob-warn{display:none;position:fixed;inset:0;z-index:999;background:rgba(7,5,15,.97);flex-direction:column;align-items:center;justify-content:center;padding:36px;text-align:center;}
+@media(max-width:900px){.mob-warn{display:flex;}}
+.mw-h{font-family:var(--display);font-size:20px;text-transform:uppercase;letter-spacing:-.5px;margin-bottom:10px;margin-top:20px;}
+.mw-p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:24px;max-width:300px;}
+.mw-card{background:var(--ink2);border:1px solid var(--dim);border-radius:4px;padding:20px;max-width:300px;width:100%;text-align:left;}
+.mw-step{font-family:var(--mono);font-size:10px;color:rgba(240,237,232,.45);letter-spacing:1px;padding:7px 0;border-bottom:1px solid var(--dim2);display:flex;gap:12px;}
+.mw-step:last-child{border:none;}
+.mw-sn{color:var(--gold);}
+.mw-note{margin-top:18px;font-family:var(--mono);font-size:9px;color:rgba(240,237,232,.2);letter-spacing:2px;}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:52px;border-bottom:1px solid var(--dim);background:rgba(7,5,15,.96);flex-shrink:0;}
+.nav-left{display:flex;align-items:center;gap:18px;}
+.nav-back{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--muted);text-decoration:none;transition:color .2s;}
+.nav-back::before{content:'← ';color:rgba(240,237,232,.2);}
+.nav-back:hover{color:var(--white);}
+.ndiv{width:1px;height:16px;background:var(--dim);}
+.nav-status{display:flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;color:rgba(29,185,84,.55);letter-spacing:2px;text-transform:uppercase;}
+.npulse{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 7px var(--green);animation:blink 3s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.nav-r{font-family:var(--mono);font-size:10px;color:rgba(240,237,232,.18);letter-spacing:2px;}
+
+/* WORKSPACE */
+.workspace{display:grid;grid-template-columns:272px 1fr 308px;flex:1;overflow:hidden;min-height:0;}
+
+/* LEFT */
+.setup{border-right:1px solid var(--dim);display:flex;flex-direction:column;overflow-y:auto;background:var(--ink2);position:relative;}
+.setup::-webkit-scrollbar{width:3px;}
+.setup::-webkit-scrollbar-thumb{background:var(--dim);}
+.sb{padding:16px;border-bottom:1px solid var(--dim);}
+.blbl{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:rgba(201,168,76,.42);text-transform:uppercase;margin-bottom:11px;}
+.setup-h{font-family:var(--display);font-size:15px;text-transform:uppercase;letter-spacing:-.5px;line-height:1.1;margin-bottom:5px;}
+.setup-p{font-size:12px;color:var(--muted);line-height:1.5;}
+.ind-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.ib{padding:10px;background:var(--ink3);border:1px solid var(--dim);cursor:pointer;transition:all .18s;text-align:left;border-radius:2px;}
+.ib:hover{background:var(--surface);border-color:rgba(201,168,76,.18);}
+.ib.on{background:rgba(201,168,76,.07);border-color:var(--gold);}
+.ib.on .ibn{color:var(--gold);}
+.ibn{font-family:var(--display);font-size:11px;text-transform:uppercase;color:var(--white);display:block;margin-bottom:2px;transition:color .18s;}
+.ibs{font-family:var(--mono);font-size:8px;color:rgba(240,237,232,.22);letter-spacing:.5px;}
+.sclist{display:flex;flex-direction:column;gap:5px;}
+.scbtn{padding:11px 12px;background:var(--ink3);border:1px solid var(--dim);cursor:pointer;transition:all .18s;text-align:left;border-radius:2px;}
+.scbtn:hover{background:var(--surface);border-color:rgba(240,237,232,.12);}
+.scbtn.on{background:rgba(201,168,76,.05);border-color:rgba(201,168,76,.28);}
+.scn{font-size:12px;color:var(--white);display:block;margin-bottom:3px;}
+.sct{font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;}
+.sct.booking{color:rgba(201,168,76,.65);}
+.sct.urgent{color:rgba(217,64,64,.65);}
+.ph{font-size:11px;color:rgba(240,237,232,.18);font-style:italic;}
+.simbtn{width:100%;padding:12px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--ink);font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase;border:none;cursor:pointer;border-radius:2px;transition:all .2s;}
+.simbtn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 26px rgba(201,168,76,.2);}
+.simbtn:disabled{opacity:.28;cursor:not-allowed;transform:none;}
+.resetbtn{width:100%;padding:9px;margin-top:6px;background:transparent;color:var(--muted);border:1px solid var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .2s;display:none;}
+.resetbtn:hover{border-color:rgba(240,237,232,.18);color:var(--white);}
+
+/* CENTER */
+.convo{display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.cbar{padding:0 20px;height:44px;border-bottom:1px solid var(--dim);display:flex;align-items:center;justify-content:space-between;background:rgba(7,5,15,.5);flex-shrink:0;}
+.cb-t{font-family:var(--mono);font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;}
+.cb-m{font-family:var(--mono);font-size:9px;color:rgba(240,237,232,.2);letter-spacing:1px;}
+
+/* Missed call */
+.mco{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:rgba(7,5,15,.94);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .4s;}
+.mco.show{opacity:1;pointer-events:auto;}
+.mc-wrap{text-align:center;}
+.mc-ring{width:80px;height:80px;border-radius:50%;border:2px solid rgba(217,64,64,.3);background:rgba(217,64,64,.06);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;animation:ring 1.2s ease-in-out infinite;}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(217,64,64,.4)}70%{box-shadow:0 0 0 24px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.mc-ring svg{stroke:var(--red);width:32px;height:32px;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.mc-h{font-family:var(--display);font-size:18px;text-transform:uppercase;letter-spacing:-.5px;margin-bottom:8px;}
+.mc-ph{font-family:var(--mono);font-size:13px;color:var(--muted);margin-bottom:6px;}
+.mc-lbl{font-family:var(--mono);font-size:9px;color:rgba(217,64,64,.6);letter-spacing:3px;text-transform:uppercase;animation:lp 1s ease-in-out infinite;}
+@keyframes lp{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* Messages */
+.msgs{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:11px;}
+.msgs::-webkit-scrollbar{width:3px;}
+.msgs::-webkit-scrollbar-thumb{background:var(--dim);}
+.idle-w{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;}
+.idle-ic{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--dim);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+.idle-ic svg{stroke:rgba(240,237,232,.18);width:20px;height:20px;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.idle-hh{font-family:var(--display);font-size:13px;text-transform:uppercase;letter-spacing:-.3px;color:rgba(240,237,232,.18);margin-bottom:6px;}
+.idle-pp{font-size:12px;color:rgba(240,237,232,.13);line-height:1.6;}
+.mgrp{display:flex;flex-direction:column;gap:3px;}
+.msndr{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;display:flex;align-items:center;gap:6px;}
+.msndr.nexus{color:rgba(201,168,76,.45);}
+.msndr.lead{color:rgba(240,237,232,.2);}
+.msndr-dot{width:4px;height:4px;border-radius:50%;}
+.msndr.nexus .msndr-dot{background:rgba(201,168,76,.45);}
+.msndr.lead .msndr-dot{background:rgba(240,237,232,.18);}
+.bbl{padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.55;max-width:84%;animation:bIn .3s ease;white-space:pre-wrap;}
+@keyframes bIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.bbl.nexus{background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--ink);font-weight:500;align-self:flex-end;border-bottom-right-radius:3px;}
+.bbl.lead{background:rgba(255,255,255,.06);color:rgba(240,237,232,.72);align-self:flex-start;border:1px solid var(--dim);border-bottom-left-radius:3px;}
+.bbl.system{align-self:center;background:rgba(29,185,84,.07);border:1px solid rgba(29,185,84,.17);color:rgba(29,185,84,.85);font-family:var(--mono);font-size:10px;letter-spacing:.5px;text-align:center;border-radius:4px;max-width:92%;}
+.bbl.sys-urg{background:rgba(217,64,64,.07);border-color:rgba(217,64,64,.2);color:rgba(217,64,64,.85);}
+.bbl-t{font-family:var(--mono);font-size:8px;color:rgba(240,237,232,.13);margin-top:3px;}
+.bbl.nexus~.bbl-t{text-align:right;}
+.tw{display:flex;align-items:center;gap:7px;padding:9px 13px;background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.1);border-radius:8px;border-bottom-left-radius:3px;width:fit-content;display:none;}
+.tw.show{display:flex;animation:bIn .3s ease;}
+.td{width:5px;height:5px;border-radius:50%;background:rgba(201,168,76,.35);}
+.td:nth-child(1){animation:dot 1.2s 0s infinite;}
+.td:nth-child(2){animation:dot 1.2s .2s infinite;}
+.td:nth-child(3){animation:dot 1.2s .4s infinite;}
+@keyframes dot{0%,80%,100%{transform:scale(.6);opacity:.28}40%{transform:scale(1);opacity:1}}
+.tlbl{font-family:var(--mono);font-size:9px;color:rgba(201,168,76,.32);letter-spacing:2px;text-transform:uppercase;}
+.ltw{display:flex;align-items:center;gap:6px;padding:8px 11px;background:rgba(255,255,255,.04);border:1px solid var(--dim);border-radius:8px;border-bottom-left-radius:3px;width:fit-content;display:none;}
+.ltw.show{display:flex;}
+.ld{width:4px;height:4px;border-radius:50%;background:rgba(240,237,232,.18);}
+.ld:nth-child(1){animation:dot 1.4s 0s infinite;}
+.ld:nth-child(2){animation:dot 1.4s .25s infinite;}
+.ld:nth-child(3){animation:dot 1.4s .5s infinite;}
+
+/* Conversion bar */
+.conv-bar{padding:14px 20px;border-top:1px solid var(--dim);background:rgba(7,5,15,.6);display:none;flex-shrink:0;}
+.conv-bar.show{display:block;animation:bIn .4s ease;}
+.cvh{font-family:var(--display);font-size:14px;text-transform:uppercase;letter-spacing:-.3px;margin-bottom:4px;}
+.cvp{font-size:12px;color:var(--muted);margin-bottom:11px;}
+.cvcta{width:100%;padding:11px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--ink);font-weight:800;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;border:none;cursor:pointer;border-radius:2px;transition:all .2s;}
+.cvcta:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(201,168,76,.22);}
+
+/* RIGHT — DASHBOARD */
+.dash{border-left:1px solid var(--dim);display:flex;flex-direction:column;overflow-y:auto;background:var(--ink2);}
+.dash::-webkit-scrollbar{width:3px;}
+.dash::-webkit-scrollbar-thumb{background:var(--dim);}
+.db{padding:14px;border-bottom:1px solid var(--dim);}
+.dlbl{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:rgba(240,237,232,.2);text-transform:uppercase;margin-bottom:11px;}
+.lc{background:var(--ink3);border:1px solid var(--dim);border-radius:3px;padding:13px;transition:all .3s;}
+.lc.act{border-color:rgba(201,168,76,.2);}
+.lc.bkd{border-color:rgba(29,185,84,.2);}
+.lc.esc{border-color:rgba(217,64,64,.2);}
+.lc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.lc-ph{font-family:var(--mono);font-size:11px;color:var(--white);}
+.lc-st{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:2px;}
+.lc-st.new{background:var(--blue-dim);border:1px solid rgba(74,144,217,.22);color:var(--blue);}
+.lc-st.active{background:var(--amber-dim);border:1px solid rgba(224,128,32,.22);color:var(--amber);}
+.lc-st.qualified{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.22);color:var(--gold);}
+.lc-st.booked{background:var(--green-dim);border:1px solid rgba(29,185,84,.22);color:var(--green);}
+.lc-st.escalated{background:var(--red-dim);border:1px solid rgba(217,64,64,.22);color:var(--red);}
+.lc-int{font-size:12px;color:var(--muted);margin-bottom:3px;line-height:1.4;}
+.lc-ind{font-family:var(--mono);font-size:9px;color:rgba(240,237,232,.18);letter-spacing:1px;text-transform:uppercase;}
+.lc-stg{margin-top:11px;padding-top:11px;border-top:1px solid var(--dim);}
+.lc-stg-l{font-family:var(--mono);font-size:8px;color:rgba(240,237,232,.16);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.sbar{display:flex;gap:3px;}
+.sp{flex:1;height:2px;border-radius:1px;background:var(--dim);transition:all .4s;}
+.sp.done{background:var(--gold);}
+.sp.live{background:var(--gold);animation:spP 1.5s ease-in-out infinite;}
+.sp.bk{background:var(--green);}
+.sp.ur{background:var(--red);}
+@keyframes spP{0%,100%{opacity:1}50%{opacity:.35}}
+.stg-n{font-family:var(--mono);font-size:8px;color:rgba(240,237,232,.22);letter-spacing:1px;text-transform:uppercase;margin-top:5px;}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.met{background:var(--ink3);border:1px solid var(--dim);border-radius:3px;padding:11px 10px;transition:all .3s;}
+.met.lit{border-color:rgba(201,168,76,.18);}
+.mn{font-family:var(--display);font-size:20px;color:var(--gold);line-height:1;transition:all .3s;}
+.mn.g{color:var(--green);}
+.mn.r{color:var(--red);}
+.mn.b{color:var(--blue);}
+.ml{font-family:var(--mono);font-size:8px;color:rgba(240,237,232,.18);letter-spacing:1px;text-transform:uppercase;margin-top:4px;}
+.tline{display:flex;flex-direction:column;}
+.tli{display:flex;gap:9px;padding:9px 0;border-bottom:1px solid var(--dim2);}
+.tli:last-child{border:none;}
+.tl-l{display:flex;flex-direction:column;align-items:center;width:22px;flex-shrink:0;}
+.tl-d{width:8px;height:8px;border-radius:50%;border:1px solid rgba(240,237,232,.13);background:var(--ink);flex-shrink:0;transition:all .3s;}
+.tl-d.done{background:var(--green);border-color:var(--green);box-shadow:0 0 5px rgba(29,185,84,.3);}
+.tl-d.live{background:var(--gold);border-color:var(--gold);box-shadow:0 0 8px rgba(201,168,76,.4);animation:ld2 2s ease-in-out infinite;}
+.tl-d.urg{background:var(--red);border-color:var(--red);box-shadow:0 0 5px rgba(217,64,64,.3);}
+@keyframes ld2{0%,100%{box-shadow:0 0 8px rgba(201,168,76,.4)}50%{box-shadow:0 0 16px rgba(201,168,76,.7)}}
+.tl-c{flex:1;width:1px;background:linear-gradient(180deg,var(--dim),transparent);margin-top:3px;}
+.tl-ts{font-family:var(--mono);font-size:7px;color:rgba(240,237,232,.13);margin-top:4px;}
+.tl-b{}
+.tl-ev{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;}
+.tl-ev.r{color:rgba(217,64,64,.6);}
+.tl-ev.g{color:rgba(201,168,76,.6);}
+.tl-ev.w{color:rgba(240,237,232,.28);}
+.tl-ev.gr{color:rgba(29,185,84,.6);}
+.tl-ev.b{color:rgba(74,144,217,.6);}
+.tl-desc{font-size:11px;color:rgba(240,237,232,.42);line-height:1.4;}
+.afeed{display:flex;flex-direction:column;}
+.af{display:flex;align-items:flex-start;gap:7px;padding:8px 0;border-bottom:1px solid var(--dim2);animation:afIn .3s ease;}
+@keyframes afIn{from{opacity:0;transform:translateX(5px)}to{opacity:1;transform:none}}
+.af:last-child{border:none;}
+.af-d{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.af-d.r{background:var(--red);}
+.af-d.g{background:rgba(201,168,76,.55);}
+.af-d.gr{background:var(--green);}
+.af-d.a{background:var(--amber);}
+.af-d.b{background:var(--blue);}
+.af-t{font-size:11px;color:rgba(240,237,232,.42);line-height:1.4;flex:1;}
+.af-ts{font-family:var(--mono);font-size:8px;color:rgba(240,237,232,.13);flex-shrink:0;white-space:nowrap;}
+.nd{font-family:var(--mono);font-size:10px;color:rgba(240,237,232,.15);letter-spacing:1px;}
+
+/* SLOTS */
+/* SLOTS */
+.slot-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.slot{padding:10px 8px;background:var(--ink3);border:1px solid var(--dim);border-radius:2px;cursor:pointer;transition:all .18s;text-align:center;font-family:var(--mono);font-size:10px;color:rgba(240,237,232,.4);letter-spacing:1px;text-transform:uppercase;line-height:1.6;}
+.slot span{display:block;color:rgba(240,237,232,.65);font-size:11px;margin-top:2px;}
+.slot:hover{background:var(--surface);border-color:rgba(201,168,76,.2);color:var(--muted);}
+.slot.picked{background:rgba(201,168,76,.08);border-color:var(--gold);color:var(--gold);}
+.slot.picked span{color:var(--gold);}
+
+/* MODAL */
+.modal-ol{position:fixed;inset:0;z-index:100;background:rgba(7,5,15,.88);backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;padding:24px;}
+.modal-ol.show{display:flex;}
+.modal{background:var(--ink2);border:1px solid rgba(201,168,76,.18);border-radius:4px;padding:30px;max-width:460px;width:100%;animation:bIn .3s ease;}
+.m-tag{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:rgba(201,168,76,.45);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.m-tag::before{content:'';width:12px;height:1px;background:var(--gold);opacity:.4;}
+.m-h{font-family:var(--display);font-size:20px;text-transform:uppercase;letter-spacing:-.5px;line-height:1.1;margin-bottom:7px;}
+.m-p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:22px;}
+.mf{margin-bottom:13px;}
+.ml2{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:rgba(240,237,232,.32);text-transform:uppercase;margin-bottom:5px;display:block;}
+.mi{width:100%;padding:10px 13px;background:rgba(240,237,232,.04);border:1px solid var(--dim);color:var(--white);font-size:13px;font-family:var(--body);border-radius:2px;outline:none;transition:border .2s;}
+.mi:focus{border-color:rgba(201,168,76,.32);}
+.mi::placeholder{color:rgba(240,237,232,.18);}
+.mr{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+.ms{width:100%;padding:12px;margin-top:6px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--ink);font-weight:800;font-size:12px;letter-spacing:2px;text-transform:uppercase;border:none;cursor:pointer;border-radius:2px;transition:all .2s;}
+.ms:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(201,168,76,.2);}
+.mc2{width:100%;padding:9px;margin-top:6px;background:transparent;color:var(--muted);border:1px solid var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .2s;}
+.mc2:hover{border-color:rgba(240,237,232,.18);color:var(--white);}
+.msuc{text-align:center;padding:16px 0;display:none;}
+.msuc-ic{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+.msuc-ic svg{stroke:var(--green);width:20px;height:20px;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.msuc-h{font-family:var(--display);font-size:17px;text-transform:uppercase;letter-spacing:-.5px;margin-bottom:7px;}
+.msuc-p{font-size:13px;color:var(--muted);line-height:1.6;}
+</style>
+</head>
+<body>
+
+<!-- MOBILE WARNING -->
+<div class="mob-warn">
+  <svg width="120" height="22" viewBox="0 0 150 28" fill="none">
+    <rect x="0" y="2" width="3" height="24" rx="1" fill="#F0EDE8"/>
+    <rect x="20" y="2" width="3" height="24" rx="1" fill="#F0EDE8"/>
+    <line x1="3" y1="2" x2="20" y2="26" stroke="#F0EDE8" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="11.5" cy="14" r="2" fill="#4A90D9"/>
+    <text x="32" y="20" font-family="IBM Plex Mono,monospace" font-size="15" font-weight="500" letter-spacing="3" fill="#F0EDE8">NEXUS</text>
+    <text x="32.5" y="27" font-family="IBM Plex Mono,monospace" font-size="6" letter-spacing="4.5" fill="rgba(240,237,232,0.35)">RESPONSE</text>
+  </svg>
+  <div class="mw-h">Desktop Required</div>
+  <p class="mw-p">The Nexus sandbox is a full operational dashboard. Best experienced on desktop or laptop.</p>
+  <div class="mw-card">
+    <div class="mw-step"><span class="mw-sn">01</span>Tap the three-dot menu in your browser</div>
+    <div class="mw-step"><span class="mw-sn">02</span>Select "Desktop site"</div>
+    <div class="mw-step"><span class="mw-sn">03</span>The full sandbox loads</div>
+  </div>
+  <div class="mw-note">Or open on a laptop for the full experience</div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a class="nav-back" href="/">Nexus</a>
+    <div class="ndiv"></div>
+    <svg width="96" height="18" viewBox="0 0 130 24" fill="none">
+      <rect x="0" y="2" width="2.8" height="20" rx="1" fill="#F0EDE8"/>
+      <rect x="17" y="2" width="2.8" height="20" rx="1" fill="#F0EDE8"/>
+      <line x1="2.8" y1="2" x2="17" y2="22" stroke="#F0EDE8" stroke-width="2.8" stroke-linecap="round"/>
+      <circle cx="10" cy="12" r="1.8" fill="#4A90D9"/>
+      <text x="26" y="17" font-family="IBM Plex Mono,monospace" font-size="13" font-weight="500" letter-spacing="3" fill="#F0EDE8">NEXUS</text>
+      <text x="26.5" y="23.5" font-family="IBM Plex Mono,monospace" font-size="5.5" letter-spacing="4.5" fill="rgba(240,237,232,0.32)">RESPONSE</text>
+    </svg>
+  </div>
+  <div class="nav-status"><div class="npulse"></div>Sandbox Active</div>
+  <div class="nav-r">Live Demo</div>
+</nav>
+
+<div class="workspace">
+  <!-- LEFT: SETUP -->
+  <div class="setup">
+    <div class="sb">
+      <div class="blbl" style="margin-bottom:9px;">Sandbox</div>
+      <div class="setup-h">Simulate a<br>Missed Call</div>
+      <p class="setup-p" style="margin-top:5px;">Pick an industry and scenario. Watch Nexus engage the lead in real time.</p>
+    </div>
+    <div class="sb">
+      <div class="blbl">01 — Industry</div>
+      <div class="ind-grid" id="ig">
+        <button class="ib" onclick="pickInd('roofing','Roofing',this)"><span class="ibn">Roofing</span><span class="ibs">Residential</span></button>
+        <button class="ib" onclick="pickInd('hvac','HVAC',this)"><span class="ibn">HVAC</span><span class="ibs">Heat & Cool</span></button>
+        <button class="ib" onclick="pickInd('dental','Dental',this)"><span class="ibn">Dental</span><span class="ibs">Clinic</span></button>
+        <button class="ib" onclick="pickInd('legal','Legal',this)"><span class="ibn">Legal</span><span class="ibs">Attorney</span></button>
+        <button class="ib" onclick="pickInd('plumbing','Plumbing',this)"><span class="ibn">Plumbing</span><span class="ibs">Emergency</span></button>
+        <button class="ib" onclick="pickInd('medspa','Med Spa',this)"><span class="ibn">Med Spa</span><span class="ibs">Aesthetics</span></button>
+      </div>
+    </div>
+    <div class="sb">
+      <div class="blbl">02 — Scenario</div>
+      <div class="sclist" id="scl"><div class="ph">Select an industry first</div></div>
+    </div>
+    <div class="sb" style="border-top:1px solid var(--dim);">
+      <div id="sim-hint" style="font-family:var(--mono);font-size:9px;color:rgba(240,237,232,.2);letter-spacing:1px;text-align:center;margin-bottom:10px;transition:opacity .3s;">Select industry + scenario above</div>
+      <button class="simbtn" id="simbtn" disabled onclick="startSim()">▶ Trigger Missed Call</button>
+      <button class="resetbtn" id="resetbtn" onclick="resetAll()">↺ Reset Sandbox</button>
+    </div>
+  </div>
+
+  <!-- CENTER: CONVO -->
+  <div class="convo">
+    <div class="cbar">
+      <div class="cb-t">Conversation</div>
+      <div class="cb-m" id="cbm">No simulation running</div>
+    </div>
+    <div class="mco" id="mco">
+      <div class="mc-wrap">
+        <div class="mc-ring"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.95-1.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+        <div class="mc-h" id="mch">Missed Call</div>
+        <div class="mc-ph" id="mcph">+1 (415) 555-0142</div>
+        <div class="mc-lbl">Incoming · Unanswered</div>
+      </div>
+    </div>
+    <div class="msgs" id="msgs">
+      <div class="idle-w">
+        <div class="idle-ic"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.95-1.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+        <div class="idle-hh">Waiting for simulation</div>
+        <div class="idle-pp">Select an industry and scenario<br>then trigger the missed call.</div>
+      </div>
+    </div>
+    <div class="tw" id="ntw"><div class="td"></div><div class="td"></div><div class="td"></div><div class="tlbl">Nexus responding</div></div>
+    <div class="ltw" id="ltw"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>
+    <div class="conv-bar" id="cvbar">
+      <div class="cvh">Ready To Deploy This?</div>
+      <div class="cvp">Set Nexus up on your business line. Pick a deployment slot and we configure everything.</div>
+      <button class="cvcta" onclick="window.location.href='/activate'">Activate Nexus Response →</button>
+    </div>
+  </div>
+
+  <!-- RIGHT: DASHBOARD -->
+  <div class="dash">
+    <div class="db">
+      <div class="dlbl">Lead Status</div>
+      <div id="lcw"><div class="nd">No active lead</div></div>
+    </div>
+    <div class="db">
+      <div class="dlbl">Live Metrics</div>
+      <div class="mgrid">
+        <div class="met"><div class="mn b" id="mr">—</div><div class="ml">Response</div></div>
+        <div class="met"><div class="mn" id="ms">—</div><div class="ml">Stage</div></div>
+        <div class="met"><div class="mn g" id="mld">0</div><div class="ml">Leads Today</div></div>
+        <div class="met"><div class="mn" id="mi2">—</div><div class="ml">Intent</div></div>
+      </div>
+    </div>
+    <div class="db">
+      <div class="dlbl">Event Timeline</div>
+      <div class="tline" id="tline"><div class="nd">Timeline appears during simulation</div></div>
+    </div>
+    <div class="db" style="flex:1;">
+      <div class="dlbl">Activity Log</div>
+      <div class="afeed" id="afeed"><div class="nd">Activity appears here</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-ol" id="modal">
+  <div class="modal">
+    <div id="mform">
+      <div class="m-tag">Setup Appointment</div>
+      <div class="m-h">Book Your<br>Setup Call</div>
+      <p class="m-p">We configure everything — you're live within hours. Select a time slot and tell us about your business.</p>
+
+      <!-- TIME SLOTS -->
+      <div class="mf">
+        <label class="ml2">Available Setup Slots</label>
+        <div class="slot-grid" id="slot-grid">
+          <div class="slot" onclick="pickSlot(this,'Mon–Fri · 9:00 AM WAT')">Mon–Fri<span>9:00 AM</span></div>
+          <div class="slot" onclick="pickSlot(this,'Mon–Fri · 11:00 AM WAT')">Mon–Fri<span>11:00 AM</span></div>
+          <div class="slot" onclick="pickSlot(this,'Mon–Fri · 2:00 PM WAT')">Mon–Fri<span>2:00 PM</span></div>
+          <div class="slot" onclick="pickSlot(this,'Mon–Fri · 4:00 PM WAT')">Mon–Fri<span>4:00 PM</span></div>
+          <div class="slot" onclick="pickSlot(this,'Saturday · 10:00 AM WAT')">Saturday<span>10:00 AM</span></div>
+          <div class="slot" onclick="pickSlot(this,'Saturday · 12:00 PM WAT')">Saturday<span>12:00 PM</span></div>
+        </div>
+        <div id="slot-selected" style="display:none;margin-top:10px;padding:9px 12px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);border-radius:2px;font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:1px;"></div>
+      </div>
+
+      <div class="mf"><label class="ml2">Your Name</label><input class="mi" id="fn" type="text" placeholder="James Rodriguez"></div>
+      <div class="mr">
+        <div class="mf"><label class="ml2">Business Type</label><input class="mi" id="fb" type="text" placeholder="Roofing Co."></div>
+        <div class="mf"><label class="ml2">Phone</label><input class="mi" id="fp" type="tel" placeholder="+1 (415) 000-0000"></div>
+      </div>
+      <div class="mf"><label class="ml2">Email</label><input class="mi" id="fe" type="email" placeholder="james@yourbusiness.com"></div>
+      <button class="ms" id="submit-btn" onclick="submitForm()">Confirm Appointment →</button>
+      <button class="mc2" onclick="closeModal()">Maybe later</button>
+    </div>
+    <div class="msuc" id="msuc">
+      <div class="msuc-ic"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="msuc-h">Appointment Confirmed</div>
+      <div id="msuc-slot" style="font-family:var(--mono);font-size:12px;color:var(--gold);letter-spacing:2px;margin-bottom:14px;padding:10px 16px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:2px;"></div>
+      <p class="msuc-p">Your setup slot is locked in. We'll send a confirmation to your email with everything you need. Nexus will be live on your line the same day.</p>
+      <div style="margin-top:16px;padding:12px;background:var(--ink3);border:1px solid var(--dim);border-radius:2px;text-align:left;">
+        <div style="font-family:var(--mono);font-size:9px;color:rgba(240,237,232,.3);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">What happens next</div>
+        <div style="font-size:12px;color:rgba(240,237,232,.55);line-height:1.8;">
+          1. You'll receive a confirmation email within minutes<br>
+          2. On the call we configure Nexus on your line<br>
+          3. You forward your business number — takes 2 minutes<br>
+          4. Nexus starts catching missed calls immediately
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PHONES=['+1 (415) 555-0142','+1 (646) 555-0198','+1 (312) 555-0067','+1 (702) 555-0211','+1 (214) 555-0089','+1 (503) 555-0134'];
+const ts=()=>new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const rand=(a,b)=>Math.floor(Math.random()*(b-a)+a);
+
+const SC={
+  roofing:[
+    {name:'Storm damage — insurance claim',type:'booking',isUrgent:false,exchanges:[
+      {f:'nexus',t:"Hi — sorry we missed your call. This is Apex Roofing. How can we help?\n\nReply 1 = Emergency / active leak\nReply 2 = Schedule inspection\nReply 3 = Question"},
+      {f:'lead',t:'2',d:[3200,5800]},
+      {f:'nexus',t:"Got it. Is this for storm damage, routine maintenance, or something specific you noticed?",d:[7500,10000]},
+      {f:'lead',t:'storm damage from last night, hail',d:[5000,9000],typo:'storm damge last nite, hail'},
+      {f:'nexus',t:"Hail damage can be significant — especially for insurance purposes. Are you planning to file a claim?",d:[7000,9500]},
+      {f:'lead',t:'yes my adjuster is coming Friday',d:[4500,8500]},
+      {f:'nexus',t:"Perfect. We'll document everything before they arrive. We can be out Thursday morning — 8 or 10am?",d:[6500,9000]},
+      {f:'lead',t:'10am works',d:[2500,5000]},
+      {f:'nexus',t:"Thursday 10am confirmed ✓\n\nFull documentation ready before your adjuster Friday. You'll get a reminder the night before.",d:[7000,9500]},
+      {f:'system',t:'✓ Appointment Booked · Thu 10:00am · Storm Assessment · Insurance Claim'}
+    ]},
+    {name:'Active roof leak — emergency',type:'urgent',isUrgent:true,exchanges:[
+      {f:'nexus',t:"Hi — sorry we missed your call. This is Apex Roofing.\n\nReply 1 = Emergency\nReply 2 = Schedule\nReply 3 = Question"},
+      {f:'lead',t:'1',d:[1800,3200]},
+      {f:'nexus',t:"⚠️ We're on it. Is there active water coming in right now?",d:[4500,6500]},
+      {f:'lead',t:'yes water dripping from 2 spots in the ceiling',d:[6000,11000],typo:'yes watter dripping 2 spots in celing'},
+      {f:'nexus',t:"Move anything valuable away from those spots — especially electronics. Is either spot near a light fixture or outlet?",d:[5000,7500]},
+      {f:'lead',t:'one of them yes near a light',d:[4000,7500]},
+      {f:'nexus',t:"Turn off that circuit at the breaker. Water near electrical is serious.\n\nOur crew is being dispatched now. ETA 45–60 minutes. Someone calls you in 5 minutes.",d:[6000,9000]},
+      {f:'system',t:'🚨 Emergency Escalated · Crew Dispatched · ETA 45–60min · Owner Alerted',isUrgent:true}
+    ]}
+  ],
+  hvac:[
+    {name:'AC not cooling — book service',type:'booking',isUrgent:false,exchanges:[
+      {f:'nexus',t:"Hi — sorry we missed your call. This is Comfort Pro HVAC.\n\nReply 1 = Emergency\nReply 2 = Schedule service\nReply 3 = Question"},
+      {f:'lead',t:'2',d:[3500,6000]},
+      {f:'nexus',t:"Of course — what's going on with the system? Not cooling, making noise, or something else?",d:[7000,9500]},
+      {f:'lead',t:'blowing warm air, central ac',d:[4500,8500],typo:'blowing wram air central ac'},
+      {f:'nexus',t:"Warm air usually means a refrigerant or compressor issue. How old is the unit roughly?",d:[7500,10000]},
+      {f:'lead',t:'around 8 years i think',d:[4000,7500]},
+      {f:'nexus',t:"At 8 years it's very serviceable — likely a recharge or component. We can have a tech out tomorrow 8–10am. Work for you?",d:[8000,11000]},
+      {f:'lead',t:'yes that works',d:[2500,4500]},
+      {f:'nexus',t:"Booked — tomorrow 8–10am. Tech calls 30 min before arrival. Bring warranty docs if you have them.",d:[6000,8500]},
+      {f:'system',t:'✓ Service Booked · Tomorrow 8–10am · HVAC Diagnostic + Repair'}
+    ]},
+    {name:'No heat — emergency',type:'urgent',isUrgent:true,exchanges:[
+      {f:'nexus',t:"Hi — sorry we missed your call. This is Comfort Pro HVAC.\n\nReply 1 = Emergency\nReply 2 = Schedule\nReply 3 = Question"},
+      {f:'lead',t:'1 no heat emergency i have kids',d:[2500,4500]},
+      {f:'nexus',t:"⚠️ We're treating this as urgent. What's the temperature inside right now?",d:[5000,7000]},
+      {f:'lead',t:'57 degrees, been out since last night',d:[5000,9500],typo:'57 degress been out since lastnight'},
+      {f:'nexus',t:"Get everyone into one room with blankets — space heater if you have one.\n\nOn-call tech is being dispatched. ETA 30–45 minutes. You'll get a call in the next few minutes.",d:[6000,8500]},
+      {f:'system',t:'🚨 Emergency Dispatch · On-Call Tech Notified · ETA 30–45min',isUrgent:true}
+    ]}
+  ],
+  dental:[
+    {name:'New patient — routine cleaning',type:'booking',isUrgent:false,exchanges:[
+      {f:'nexus',t:"Hi — sorry we missed your call. This is Bright Smile Dental.\n\nReply 1 = Dental emergency / pain\nReply 2 = Book appointment\nReply 3 = Question"},
+      {f:'lead',t:'2',d:[4000,7000]},
+      {f:'nexus',t:"Happy to help. New or existing patient?",d:[6500,8500]},
+      {f:'lead',t:'new patient',d:[3000,5500]},
+      {f:'nexus',t:"Welcome! Routine cleaning and exam, or something specific?",d:[7000,9000]},
+      {f:'lead',t:'just routine, havent been in 2 years',d:[5500,10000],typo:'just routine havent been in 2 yeara'},
+      {f:'nexus',t:"Two years is very normal — no judgment here. We'll do a full exam, x-rays, and cleaning.\n\nTuesday at 2pm or Thursday at 10am?",d:[8500,11500]},
+      {f:'lead',t:'thursday 10',d:[2500,5000]},
+      {f:'nexus',t:"Thursday 10am confirmed ✓\n\nIntake forms coming to this number — 2 minutes to fill out before your visit. See you Thursday!",d:[7000,9500]},
+      {f:'system',t:'✓ Appointment Booked · Thu 10:00am · New Patient · Exam + Cleaning · Intake Forms Sent'}
+    ]},
+    {name:'Tooth pain — urgent',type:'urgent',isUrgent:true,exchanges:[
+      {f:'nexus',t:"Hi — sorry we missed your call. This is Bright Smile Dental.\n\nReply 1 = Dental emergency\nReply 2 = Book\nReply 3 = Question"},
+      {f:'lead',t:'1',d:[2000,3800]},
+      {f:'nexus',t:"I'm sorry to hear that. How long has the pain been going on, and do you have any swelling?",d:[6000,8500]},
+      {f:'lead',t:'since yesterday, jaw is swollen too',d:[6500,11000],typo:'since yesterday jaw is swolen too'},
+      {f:'nexus',t:"Swelling + pain can indicate an abscess — that's urgent and needs same-day care. I'm flagging this now and notifying Dr. Chen.\n\nWe'll call you within 15 minutes to get you in today.",d:[7000,10000]},
+      {f:'system',t:'🚨 Urgent Care Flag · Possible Abscess · Same-Day Slot · Dr. Chen Notified',isUrgent:true}
+    ]}
+  ],
+  legal:[
+    {name:'Car accident — free consultation',type:'booking',isUrgent:false,exchanges:[
+      {f:'nexus',t:"Hi — sorry we missed your call. This is Sterling Law Group.\n\nReply 1 = Urgent matter\nReply 2 = Schedule consultation\nReply 3 = Question"},
+      {f:'lead',t:'2',d:[4000,7000]},
+      {f:'nexus',t:"Of course. What type of matter — personal injury, business, family, or other?",d:[7500,10000]},
+      {f:'lead',t:'personal injury car accident',d:[4500,8000]},
+      {f:'nexus',t:"I'm sorry about your accident. Were you injured, and was a police report filed?",d:[7000,9500]},
+      {f:'lead',t:'yes whiplash, police was there',d:[5000,8500],typo:'yes whiplash police wa there'},
+      {f:'nexus',t:"Documented injury + police report is a strong foundation for a claim. Our consultation is completely free.\n\nThursday 3pm or Friday 11am?",d:[9000,12000]},
+      {f:'lead',t:'thursday 3pm',d:[2500,5000]},
+      {f:'nexus',t:"Thursday 3pm confirmed ✓\n\nImportant: do not speak to the other driver's insurance before your consultation. We'll send a prep guide shortly.",d:[8000,11000]},
+      {f:'system',t:'✓ Consultation Booked · Thu 3:00pm · Personal Injury · High Value Lead'}
+    ]}
+  ],
+  plumbing:[
+    {name:'Burst pipe — emergency',type:'urgent',isUrgent:true,exchanges:[
+      {f:'nexus',t:"Hi — sorry we missed your call. This is Flow Right Plumbing.\n\nReply 1 = Emergency\nReply 2 = Schedule\nReply 3 = Question"},
+      {f:'lead',t:'1 pipe burst water everywhere',d:[2000,3500]},
+      {f:'nexus',t:"⚠️ Shut off your main water valve RIGHT NOW if you haven't already. Basement, garage, or utility closet. Have you done that?",d:[4500,6500]},
+      {f:'lead',t:'yes just did it',d:[5000,9000]},
+      {f:'nexus',t:"Good. Is the water still spreading or has it slowed?",d:[5000,7000]},
+      {f:'lead',t:'slowed a lot after shutoff',d:[4000,7500],typo:'slowed alot aft shutoff'},
+      {f:'nexus',t:"Perfect move. Emergency plumber dispatched now — ETA 20–30 minutes.\n\nPut down towels. Move any electronics off the floor. Don't use any drains until we arrive.",d:[6000,9000]},
+      {f:'system',t:'🚨 Emergency Dispatch · Plumber ETA 20–30min · Main Valve Confirmed Off',isUrgent:true}
+    ]},
+    {name:'Blocked drain — book service',type:'booking',isUrgent:false,exchanges:[
+      {f:'nexus',t:"Hi — sorry we missed your call. This is Flow Right Plumbing.\n\nReply 1 = Emergency\nReply 2 = Schedule service\nReply 3 = Question"},
+      {f:'lead',t:'2, drain blocked',d:[4000,7500]},
+      {f:'nexus',t:"Sure — which drain? Kitchen, bathroom, or main sewer line?",d:[7000,9000]},
+      {f:'lead',t:'kitchen, been slow for a few weeks',d:[5000,8500]},
+      {f:'nexus',t:"Weeks of buildup usually means grease deep in the line — straightforward fix. We can have someone out tomorrow at 9am. Work for you?",d:[8500,11000]},
+      {f:'lead',t:'yes that works',d:[2500,4500]},
+      {f:'nexus',t:"Booked — tomorrow 9am. Should be about an hour. Tech calls when they're on their way.",d:[6500,8500]},
+      {f:'system',t:'✓ Service Booked · Tomorrow 9:00am · Kitchen Drain · Standard Clearance'}
+    ]}
+  ],
+  medspa:[
+    {name:'Botox inquiry — first timer',type:'booking',isUrgent:false,exchanges:[
+      {f:'nexus',t:"Hi — sorry we missed your call. This is Revive Med Spa.\n\nReply 1 = Urgent concern\nReply 2 = Book consultation\nReply 3 = Pricing question"},
+      {f:'lead',t:'2',d:[4500,8000]},
+      {f:'nexus',t:"Happy to help. What treatment are you interested in, and have you been to us before?",d:[7500,10000]},
+      {f:'lead',t:'botox, first time anywhere',d:[5000,9000]},
+      {f:'nexus',t:"Exciting — first timers are our favorite! We start with a free 15-minute consultation. Zero pressure, just an honest conversation with Dr. Chen about what to expect.",d:[9000,13000]},
+      {f:'lead',t:'that sounds good actually',d:[3500,7000]},
+      {f:'nexus',t:"Saturday 10am or Monday 1pm?",d:[6000,8000]},
+      {f:'lead',t:'saturday',d:[2500,5000]},
+      {f:'nexus',t:"Saturday 10am confirmed ✓\n\nPre-visit form coming to this number. Avoid aspirin and alcohol 24 hours before if you can. See you Saturday! ✨",d:[8000,11000]},
+      {f:'system',t:'✓ Consultation Booked · Sat 10:00am · First Visit · Dr. Chen · Pre-Visit Form Sent'}
+    ]}
+  ]
+};
+
+let selInd=null,selName=null,selSc=null,running=false,leads=0;
+
+function pickInd(id,name,btn){
+  if(running)return;
+  selInd=id;selName=name;selSc=null;
+  document.querySelectorAll('.ib').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const l=document.getElementById('scl');
+  l.innerHTML='';
+  SC[id].forEach(s=>{
+    const el=document.createElement('button');
+    el.className='scbtn';
+    el.innerHTML=`<span class="scn">${s.name}</span><span class="sct ${s.type}">${s.isUrgent?'⚡ Emergency':'📅 Booking'}</span>`;
+    el.onclick=()=>pickSc(s,el);
+    l.appendChild(el);
+  });
+  checkR();
+}
+
+function pickSc(sc,btn){
+  if(running)return;
+  selSc=sc;
+  document.querySelectorAll('.scbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  checkR();
+}
+
+function checkR(){
+  const ready=!!(selInd&&selSc);
+  document.getElementById('simbtn').disabled=!ready;
+  const hint=document.getElementById('sim-hint');
+  if(hint)hint.style.opacity=ready?'0':'1';
+}
+
+function showNT(v){document.getElementById('ntw').classList.toggle('show',v);}
+function showLT(v){document.getElementById('ltw').classList.toggle('show',v);}
+
+function addBbl(from,text){
+  const msgs=document.getElementById('msgs');
+  if(from==='system'){
+    const b=document.createElement('div');
+    b.className='bbl system'+(text.includes('🚨')?' sys-urg':'');
+    b.textContent=text;
+    msgs.appendChild(b);
+  } else {
+    const g=document.createElement('div');
+    g.className='mgrp';
+    const s=document.createElement('div');
+    s.className=`msndr ${from}`;
+    s.innerHTML=`<div class="msndr-dot"></div>${from==='nexus'?'NEXUS':'LEAD'}`;
+    const b=document.createElement('div');
+    b.className=`bbl ${from}`;
+    b.textContent=text;
+    const t=document.createElement('div');
+    t.className='bbl-t';
+    t.textContent=ts();
+    g.appendChild(s);g.appendChild(b);g.appendChild(t);
+    msgs.appendChild(g);
+  }
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function addAF(text,dc){
+  const f=document.getElementById('afeed');
+  if(f.querySelector('.nd'))f.innerHTML='';
+  const el=document.createElement('div');
+  el.className='af';
+  el.innerHTML=`<div class="af-d ${dc}"></div><div class="af-t">${text}</div><div class="af-ts">${ts()}</div>`;
+  f.insertBefore(el,f.firstChild);
+}
+
+function addTL(ec,ev,desc,dotC){
+  const tl=document.getElementById('tline');
+  if(tl.querySelector('.nd'))tl.innerHTML='';
+  const item=document.createElement('div');
+  item.className='tli';
+  item.innerHTML=`<div class="tl-l"><div class="tl-d ${dotC}"></div><div class="tl-c"></div><div class="tl-ts">${ts()}</div></div><div class="tl-b"><div class="tl-ev ${ec}">${ev}</div><div class="tl-desc">${desc}</div></div>`;
+  tl.appendChild(item);
+}
+
+function updLC(status,intent,stageIdx){
+  const phone=document.getElementById('mcph').textContent;
+  const stages=['Triage','Qualifying','Booking','Qualified'];
+  const stageName=stages[Math.min(stageIdx,3)];
+  const isB=status==='booked',isE=status==='escalated';
+  const pips=Array.from({length:4},(_,i)=>{
+    if(i<stageIdx)return`<div class="sp done"></div>`;
+    if(i===stageIdx)return`<div class="sp ${isB?'bk':isE?'ur':'live'}"></div>`;
+    return`<div class="sp"></div>`;
+  }).join('');
+  document.getElementById('lcw').innerHTML=`
+    <div class="lc ${isB?'bkd':isE?'esc':stageIdx>0?'act':''}">
+      <div class="lc-top">
+        <div class="lc-ph">${phone}</div>
+        <div class="lc-st ${status}">${status.charAt(0).toUpperCase()+status.slice(1)}</div>
+      </div>
+      <div class="lc-int">${intent}</div>
+      <div class="lc-ind">${selName} · ${selSc.isUrgent?'Emergency':'Booking'}</div>
+      <div class="lc-stg">
+        <div class="lc-stg-l">Conversation Stage</div>
+        <div class="sbar">${pips}</div>
+        <div class="stg-n">${stageName}</div>
+      </div>
+    </div>`;
+}
+
+function updM(r,s,ld,i,sc=''){
+  document.getElementById('mr').textContent=r;
+  const se=document.getElementById('ms');se.textContent=s;se.className='mn'+(sc?' '+sc:'');
+  document.getElementById('mld').textContent=ld;
+  document.getElementById('mi2').textContent=i;
+}
+
+async function startSim(){
+  if(running||!selSc)return;
+  running=true;leads++;
+  document.getElementById('simbtn').style.display='none';
+  document.getElementById('resetbtn').style.display='block';
+
+  const phone=PHONES[rand(0,PHONES.length)];
+  document.getElementById('mcph').textContent=phone;
+  document.getElementById('mch').textContent=`Missed Call — ${selName}`;
+  const ov=document.getElementById('mco');
+  ov.classList.add('show');
+  document.getElementById('cbm').textContent=`${selName} · ${phone}`;
+
+  addAF(`Missed call from ${phone}`,'r');
+  addTL('r','Missed Call','Lead called — line unanswered','');
+  updM('—','Triage',leads,'Detecting...');
+
+  await sleep(2400);
+  ov.classList.remove('show');
+  document.getElementById('msgs').innerHTML='';
+
+  const exs=selSc.exchanges;
+  const rTime=(7.2+Math.random()*3.8).toFixed(1)+'s';
+  const stages=['Triage','Qualifying','Booking','Qualified'];
+  let si=0;
+  updLC('new',selSc.name,0);
+
+  for(let i=0;i<exs.length;i++){
+    const ex=exs[i];
+    if(ex.f==='nexus'){
+      showNT(true);
+      const nd=i===0?rand(7000,10000):rand(ex.d?ex.d[0]:5000,ex.d?ex.d[1]:9000);
+      await sleep(nd);
+      showNT(false);
+      addBbl('nexus',ex.t);
+      if(i===0){
+        updM(rTime,'Triage',leads,'Low');
+        updLC('active',selSc.name,0);
+        addTL('g','Nexus Responded',`SMS delivered in ${rTime}`,'done');
+        addAF(`Nexus responded in ${rTime}`,'g');
+      }
+    } else if(ex.f==='lead'){
+      const ld=ex.d?rand(ex.d[0],ex.d[1]):rand(4000,9000);
+      // Chance of typo + correction
+      if(ex.typo&&Math.random()>0.35){
+        showLT(true);
+        await sleep(ld*0.55);
+        showLT(false);
+        addBbl('lead',ex.typo);
+        await sleep(rand(900,2000));
+        showLT(true);
+        await sleep(rand(700,1400));
+        showLT(false);
+        // find first differing word
+        const ow=ex.t.split(' ');const tw=ex.typo.split(' ');
+        const diff=ow.find((w,i)=>tw[i]&&tw[i].toLowerCase()!==w.toLowerCase())||ow[0];
+        addBbl('lead','*'+ex.t);
+      } else {
+        showLT(true);
+        await sleep(ld);
+        showLT(false);
+        addBbl('lead',ex.t);
+      }
+      si=Math.min(si+1,3);
+      const intent=si>=2?'High':si===1?'Medium':'Low';
+      updM(rTime,stages[si],leads,intent);
+      updLC('active',selSc.name,si);
+      addAF(`Lead replied · ${stages[si]}`,'a');
+      if(si===1)addTL('w','Lead Engaged',ex.t.substring(0,42)+'...','live');
+    } else if(ex.f==='system'){
+      await sleep(500);
+      addBbl('system',ex.t);
+      const isB=ex.t.includes('✓'),isE=ex.t.includes('🚨');
+      if(isB){
+        updM(rTime,'Booked',leads,'High','g');
+        updLC('booked',ex.t.replace('✓ ','').substring(0,44),4);
+        addTL('gr','Revenue Recovered',ex.t.replace('✓ ','').substring(0,50),'done');
+        addAF('Appointment booked · Revenue recovered','gr');
+        await sleep(1400);
+        document.getElementById('cvbar').classList.add('show');
+      } else if(isE){
+        updM(rTime,'Escalated',leads,'Critical','r');
+        updLC('escalated',ex.t.replace('🚨 ','').substring(0,44),4);
+        addTL('r','Emergency Escalated',ex.t.replace('🚨 ','').substring(0,50),'urg');
+        addAF('Emergency escalated · Owner alerted','r');
+        await sleep(1400);
+        document.getElementById('cvbar').classList.add('show');
+      }
+    }
+  }
+}
+
+function resetAll(){
+  running=false;selSc=null;
+  document.querySelectorAll('.scbtn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('msgs').innerHTML=`<div class="idle-w"><div class="idle-ic"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(240,237,232,0.18)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.95-1.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><div class="idle-hh">Simulation complete</div><div class="idle-pp">Pick a new scenario to run again.</div></div>`;
+  document.getElementById('lcw').innerHTML='<div class="nd">No active lead</div>';
+  document.getElementById('tline').innerHTML='<div class="nd">Timeline appears during simulation</div>';
+  document.getElementById('afeed').innerHTML='<div class="nd">Activity appears here</div>';
+  document.getElementById('cbm').textContent='No simulation running';
+  document.getElementById('cvbar').classList.remove('show');
+  document.getElementById('simbtn').style.display='block';
+  document.getElementById('resetbtn').style.display='none';
+  updM('—','—',leads,'—');
+  checkR();
+}
+
+function openModal(){document.getElementById('modal').classList.add('show');}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+let pickedSlot='';
+function pickSlot(el,label){
+  document.querySelectorAll('.slot').forEach(s=>s.classList.remove('picked'));
+  el.classList.add('picked');
+  pickedSlot=label;
+  const sel=document.getElementById('slot-selected');
+  sel.style.display='block';
+  sel.textContent='✓ '+label+' (West Africa Time)';
+}
+function submitForm(){
+  if(!pickedSlot){alert('Please select a setup time slot.');return;}
+  if(!document.getElementById('fn').value||!document.getElementById('fe').value){alert('Please fill in your name and email.');return;}
+  document.getElementById('msuc-slot').textContent='📅  '+pickedSlot+' (West Africa Time)';
+  document.getElementById('mform').style.display='none';
+  document.getElementById('msuc').style.display='block';
+  // POST to Flask contact route
+  const data=new FormData();
+  data.append('name',document.getElementById('fn').value);
+  data.append('business',document.getElementById('fb').value);
+  data.append('phone',document.getElementById('fp').value);
+  data.append('email',document.getElementById('fe').value);
+  data.append('slot',pickedSlot);
+  fetch('/contact',{method:'POST',body:data}).catch(()=>{});
+}
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+</script>
+</body>
+</html>

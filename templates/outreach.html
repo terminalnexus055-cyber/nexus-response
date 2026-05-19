@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus Response — Outreach Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Archivo+Black&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET + TOKENS ─────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:         #07050F;
+  --bg2:        #0D0B18;
+  --bg3:        #131125;
+  --surface:    #1A1730;
+  --border:     rgba(240,237,232,0.07);
+  --border2:    rgba(240,237,232,0.12);
+  --gold:       #C9A84C;
+  --gold-dim:   #8a6f30;
+  --gold-glow:  rgba(201,168,76,0.15);
+  --text:       #F0EDE8;
+  --text-muted: rgba(240,237,232,0.45);
+  --text-dim:   rgba(240,237,232,0.25);
+  --green:      #2ECC71;
+  --green-dim:  rgba(46,204,113,0.12);
+  --blue:       #5BA4CF;
+  --blue-dim:   rgba(91,164,207,0.12);
+  --red:        #E74C3C;
+  --red-dim:    rgba(231,76,60,0.12);
+  --mono:       'IBM Plex Mono', monospace;
+  --display:    'Archivo Black', sans-serif;
+  --body:       'DM Sans', sans-serif;
+}
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--body); overflow: hidden; }
+button { cursor: pointer; font-family: var(--body); border: none; outline: none; }
+input, textarea, select { font-family: var(--body); outline: none; }
+a { color: inherit; text-decoration: none; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.2); border-radius: 2px; }
+
+/* ─── LAYOUT ─────────────────────────────────────────────────────────────── */
+.shell {
+  display: grid;
+  grid-template-rows: 54px 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ─── TOPBAR ─────────────────────────────────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  gap: 24px;
+  position: relative;
+  z-index: 10;
+}
+.topbar-logo {
+  font-family: var(--display);
+  font-size: 15px;
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  margin-right: 8px;
+}
+.topbar-divider { width: 1px; height: 24px; background: var(--border2); }
+.topbar-tabs { display: flex; gap: 2px; flex: 1; }
+.tab-btn {
+  padding: 6px 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  text-transform: uppercase;
+  transition: all 0.15s;
+}
+.tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+.tab-btn.active { color: var(--gold); border-color: rgba(201,168,76,0.25); background: var(--gold-glow); }
+.topbar-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+.metrics-pill {
+  display: flex;
+  gap: 20px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.metrics-pill span strong { color: var(--text); font-weight: 600; }
+.btn-add-prospect {
+  padding: 7px 14px;
+  font-size: 11px;
+  font-family: var(--mono);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--bg);
+  background: var(--gold);
+  border-radius: 4px;
+  transition: opacity 0.15s;
+  text-transform: uppercase;
+}
+.btn-add-prospect:hover { opacity: 0.85; }
+
+/* ─── TODAY BANNER ───────────────────────────────────────────────────────── */
+.today-banner {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 24px;
+  background: rgba(201,168,76,0.08);
+  border-bottom: 1px solid rgba(201,168,76,0.2);
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--gold);
+}
+.today-banner.visible { display: flex; }
+.today-banner .today-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+.today-banner .appts { display: flex; gap: 10px; flex-wrap: wrap; }
+.today-appt-chip {
+  padding: 2px 8px;
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 3px;
+  font-size: 10px;
+  color: var(--gold);
+}
+
+/* ─── MAIN CONTENT ───────────────────────────────────────────────────────── */
+.main { display: flex; overflow: hidden; height: 100%; }
+.tab-panel { display: none; width: 100%; height: 100%; overflow: hidden; }
+.tab-panel.active { display: flex; flex-direction: column; }
+
+/* ─── PIPELINE TAB ───────────────────────────────────────────────────────── */
+.pipeline-wrap {
+  display: flex;
+  gap: 0;
+  height: 100%;
+  overflow: hidden;
+}
+.kanban-board {
+  display: flex;
+  gap: 12px;
+  padding: 20px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex: 1;
+  align-items: flex-start;
+}
+.kanban-col {
+  flex: 0 0 220px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 120px);
+  overflow: hidden;
+}
+.kanban-col-header {
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.kanban-col-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.kanban-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--border);
+  border-radius: 10px;
+  padding: 1px 7px;
+}
+.kanban-cards {
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.prospect-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 11px 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.prospect-card:hover { border-color: var(--border2); box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+.prospect-card.selected { border-color: rgba(201,168,76,0.4); box-shadow: 0 0 0 1px rgba(201,168,76,0.15); }
+.card-biz { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 4px; line-height: 1.3; }
+.card-industry { font-family: var(--mono); font-size: 9px; color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+.card-email { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; word-break: break-all; }
+.card-date { font-family: var(--mono); font-size: 9px; color: var(--text-dim); }
+
+/* Status colours */
+.col-new .kanban-col-label { color: var(--text-muted); }
+.col-contacted .kanban-col-label { color: var(--blue); }
+.col-replied .kanban-col-label { color: #A78BFA; }
+.col-demo_booked .kanban-col-label { color: var(--gold); }
+.col-activated .kanban-col-label { color: var(--green); }
+.col-lost .kanban-col-label { color: var(--red); }
+
+/* ─── SIDEBAR ────────────────────────────────────────────────────────────── */
+.sidebar {
+  width: 0;
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  transition: width 0.2s ease;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar.open { width: 360px; }
+.sidebar-inner {
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+.sidebar-head {
+  padding: 16px 18px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.sidebar-head-info { flex: 1; min-width: 0; }
+.sidebar-biz { font-family: var(--display); font-size: 15px; color: var(--text); line-height: 1.2; margin-bottom: 4px; }
+.sidebar-industry { font-family: var(--mono); font-size: 9px; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; }
+.sidebar-close {
+  width: 26px; height: 26px;
+  border-radius: 4px;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--text-muted);
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.sidebar-close:hover { background: var(--border2); color: var(--text); }
+.sidebar-body { flex: 1; overflow-y: auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 16px; }
+.sidebar-section-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.sidebar-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.sidebar-field label { font-size: 10px; color: var(--text-muted); font-family: var(--mono); }
+.sidebar-field span { font-size: 12px; color: var(--text); word-break: break-all; }
+.sidebar-status-row { display: flex; gap: 8px; align-items: center; }
+.status-select {
+  flex: 1;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 12px;
+  padding: 6px 10px;
+  font-family: var(--mono);
+}
+.btn-update-status {
+  padding: 6px 12px;
+  font-size: 11px;
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--gold);
+  background: var(--gold-glow);
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: 4px;
+}
+.btn-update-status:hover { background: rgba(201,168,76,0.2); }
+.sidebar-notes {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 12px;
+  padding: 8px 10px;
+  resize: vertical;
+  min-height: 70px;
+  font-family: var(--body);
+  line-height: 1.5;
+}
+.btn-save-notes {
+  padding: 6px 14px;
+  font-size: 11px;
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--text);
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  margin-top: 6px;
+  align-self: flex-end;
+}
+.btn-save-notes:hover { border-color: var(--border2); background: var(--surface); }
+.email-history-item {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 9px 11px;
+  margin-bottom: 6px;
+}
+.email-history-subject { font-size: 11px; color: var(--text); margin-bottom: 3px; font-weight: 500; }
+.email-history-date { font-family: var(--mono); font-size: 9px; color: var(--text-dim); }
+.btn-send-email-sidebar {
+  width: 100%;
+  padding: 9px;
+  font-size: 12px;
+  font-family: var(--mono);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--bg);
+  background: var(--gold);
+  border-radius: 5px;
+  text-transform: uppercase;
+  transition: opacity 0.15s;
+}
+.btn-send-email-sidebar:hover { opacity: 0.85; }
+.activity-item {
+  display: flex;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+.activity-item:last-child { border-bottom: none; }
+.act-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.act-content { flex: 1; min-width: 0; }
+.act-event { font-size: 11px; color: var(--text); line-height: 1.3; }
+.act-detail { font-size: 10px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.act-time { font-family: var(--mono); font-size: 9px; color: var(--text-dim); flex-shrink: 0; margin-top: 3px; }
+
+/* ─── COMPOSE TAB ────────────────────────────────────────────────────────── */
+.compose-wrap {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  height: 100%;
+  overflow: hidden;
+}
+.compose-form-col {
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.compose-form-head {
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.compose-form-head h2 {
+  font-family: var(--display);
+  font-size: 16px;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.compose-form-head p { font-size: 11px; color: var(--text-muted); }
+.compose-form-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.form-row { display: flex; flex-direction: column; gap: 5px; }
+.form-label { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; }
+.form-input, .form-select, .form-textarea {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  color: var(--text);
+  font-size: 13px;
+  padding: 8px 11px;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: rgba(201,168,76,0.4); }
+.form-select { font-family: var(--mono); font-size: 11px; }
+.form-textarea { resize: vertical; min-height: 160px; font-size: 12px; line-height: 1.6; font-family: var(--mono); }
+.hint-vars {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+.hint-vars span {
+  display: inline-block;
+  background: rgba(201,168,76,0.08);
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 3px;
+  padding: 1px 5px;
+  color: var(--gold-dim);
+  margin: 1px;
+}
+.btn-send {
+  padding: 11px;
+  font-size: 12px;
+  font-family: var(--mono);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--bg);
+  background: var(--gold);
+  border-radius: 5px;
+  text-transform: uppercase;
+  transition: opacity 0.15s, transform 0.1s;
+  margin-top: 4px;
+}
+.btn-send:hover { opacity: 0.88; }
+.btn-send:active { transform: scale(0.98); }
+.btn-send:disabled { opacity: 0.4; pointer-events: none; }
+.send-feedback {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 8px 11px;
+  border-radius: 4px;
+  display: none;
+}
+.send-feedback.success { background: var(--green-dim); color: var(--green); border: 1px solid rgba(46,204,113,0.2); display: block; }
+.send-feedback.error   { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(231,76,60,0.2);  display: block; }
+
+/* Preview */
+.compose-preview-col {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg2);
+}
+.preview-head {
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.preview-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
+.preview-body { flex: 1; overflow-y: auto; padding: 28px 32px; }
+.preview-email-frame {
+  max-width: 560px;
+  margin: 0 auto;
+}
+.preview-from {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.preview-subject {
+  font-family: var(--display);
+  font-size: 18px;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.preview-content {
+  font-size: 14px;
+  color: rgba(240,237,232,0.8);
+  line-height: 1.75;
+  white-space: pre-wrap;
+  font-family: var(--body);
+}
+
+/* ─── TEMPLATES TAB ─────────────────────────────────────────────────────── */
+.templates-wrap {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  height: 100%;
+  overflow: hidden;
+}
+.template-list-col {
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-right: 1px solid var(--border);
+}
+.template-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.template-card:hover { border-color: var(--border2); }
+.template-card.selected { border-color: rgba(201,168,76,0.35); }
+.tpl-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.tpl-subject { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; }
+.tpl-tags { display: flex; gap: 6px; align-items: center; }
+.tpl-industry {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--gold);
+  background: var(--gold-glow);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 3px;
+  padding: 2px 7px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.tpl-id { font-family: var(--mono); font-size: 9px; color: var(--text-dim); }
+.template-actions { display: flex; gap: 6px; margin-left: auto; }
+.btn-tpl-use {
+  padding: 3px 10px;
+  font-size: 10px;
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--gold);
+  background: var(--gold-glow);
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: 3px;
+}
+.btn-tpl-use:hover { background: rgba(201,168,76,0.2); }
+.btn-tpl-delete {
+  padding: 3px 8px;
+  font-size: 10px;
+  font-family: var(--mono);
+  font-weight: 600;
+  color: var(--red);
+  background: var(--red-dim);
+  border: 1px solid rgba(231,76,60,0.2);
+  border-radius: 3px;
+}
+.btn-tpl-delete:hover { background: rgba(231,76,60,0.2); }
+.template-new-col {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.template-new-head {
+  padding: 16px 20px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.template-new-head h3 { font-family: var(--display); font-size: 14px; color: var(--text); }
+.template-new-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+
+/* ─── ACTIVITY TAB ───────────────────────────────────────────────────────── */
+.activity-wrap { display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+.activity-metrics {
+  display: flex;
+  gap: 1px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.metric-box {
+  flex: 1;
+  padding: 16px 20px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.metric-box:last-child { border-right: none; }
+.metric-val {
+  font-family: var(--display);
+  font-size: 28px;
+  color: var(--text);
+  line-height: 1;
+}
+.metric-val.gold { color: var(--gold); }
+.metric-val.green { color: var(--green); }
+.metric-label { font-family: var(--mono); font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; }
+.activity-feed-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+}
+.activity-feed-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.activity-feed-head h2 { font-family: var(--display); font-size: 15px; color: var(--text); }
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.live-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); animation: pulse 2s ease-in-out infinite; }
+.activity-row {
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.activity-row:last-child { border-bottom: none; }
+.activity-row .a-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.a-body { display: flex; flex-direction: column; gap: 2px; }
+.a-event { font-size: 13px; color: var(--text); }
+.a-detail { font-size: 11px; color: var(--text-muted); }
+.a-meta { font-family: var(--mono); font-size: 9px; color: var(--text-dim); white-space: nowrap; margin-top: 2px; }
+
+/* ─── MODAL ──────────────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(7,5,15,0.85);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.modal-head {
+  padding: 18px 22px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-head h3 { font-family: var(--display); font-size: 16px; color: var(--text); }
+.modal-close {
+  width: 28px; height: 28px;
+  border-radius: 5px;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: var(--text-muted);
+}
+.modal-close:hover { background: var(--border2); color: var(--text); }
+.modal-body { padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+.modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.btn-modal-submit {
+  padding: 10px;
+  font-size: 12px;
+  font-family: var(--mono);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--bg);
+  background: var(--gold);
+  border-radius: 5px;
+  text-transform: uppercase;
+  transition: opacity 0.15s;
+  margin-top: 4px;
+}
+.btn-modal-submit:hover { opacity: 0.85; }
+
+/* ─── UTILS ──────────────────────────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 11px;
+  text-align: center;
+  gap: 8px;
+}
+.empty-icon { font-size: 28px; opacity: 0.4; }
+.loading { text-align: center; padding: 30px; font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ─── TOPBAR ──────────────────────────────────────────────────────────── -->
+  <header class="topbar">
+    <div class="topbar-logo">NEXUS ◆ OUTREACH</div>
+    <div class="topbar-divider"></div>
+    <nav class="topbar-tabs">
+      <button class="tab-btn active" onclick="switchTab('pipeline')">Pipeline</button>
+      <button class="tab-btn" onclick="switchTab('compose')">Compose</button>
+      <button class="tab-btn" onclick="switchTab('templates')">Templates</button>
+      <button class="tab-btn" onclick="switchTab('activity')">Activity Feed</button>
+    </nav>
+    <div class="topbar-right">
+      <div class="metrics-pill">
+        <span>Prospects <strong id="m-total">—</strong></span>
+        <span>Emailed <strong id="m-emailed">—</strong></span>
+        <span>Demo Booked <strong id="m-demo">—</strong></span>
+        <span>Activated <strong id="m-activated">—</strong></span>
+      </div>
+      <button class="btn-add-prospect" onclick="openAddModal()">+ Add Prospect</button>
+    </div>
+  </header>
+
+  <!-- ─── TODAY BANNER ──────────────────────────────────────────────────── -->
+  <div class="today-banner" id="today-banner">
+    <div class="today-dot"></div>
+    <span style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;">Today's calls —</span>
+    <div class="appts" id="today-appts"></div>
+  </div>
+
+  <!-- ─── MAIN ──────────────────────────────────────────────────────────── -->
+  <div class="main">
+
+    <!-- ── PIPELINE TAB ──────────────────────────────────────────────────── -->
+    <div class="tab-panel active" id="tab-pipeline">
+      <div class="pipeline-wrap">
+        <div class="kanban-board" id="kanban-board">
+          <div class="loading">Loading pipeline…</div>
+        </div>
+        <!-- Sidebar -->
+        <aside class="sidebar" id="prospect-sidebar">
+          <div class="sidebar-inner">
+            <div class="sidebar-head">
+              <div class="sidebar-head-info">
+                <div class="sidebar-biz" id="sb-biz">—</div>
+                <div class="sidebar-industry" id="sb-industry">—</div>
+              </div>
+              <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+            </div>
+            <div class="sidebar-body" id="sidebar-body">
+              <div class="loading">Select a prospect</div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ── COMPOSE TAB ───────────────────────────────────────────────────── -->
+    <div class="tab-panel" id="tab-compose">
+      <div class="compose-wrap">
+        <div class="compose-form-col">
+          <div class="compose-form-head">
+            <h2>Compose Email</h2>
+            <p>Select a prospect and template, then send.</p>
+          </div>
+          <div class="compose-form-body">
+            <div class="form-row">
+              <label class="form-label">Template</label>
+              <select class="form-select" id="c-template" onchange="applyTemplate()">
+                <option value="">— No template —</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label">To (Prospect)</label>
+              <select class="form-select" id="c-prospect" onchange="updatePreview()">
+                <option value="">— Select prospect —</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Subject</label>
+              <input class="form-input" id="c-subject" type="text" placeholder="Email subject…" oninput="updatePreview()">
+            </div>
+            <div class="form-row">
+              <label class="form-label">Body</label>
+              <textarea class="form-textarea" id="c-body" placeholder="Email body… Use {{business_name}}, {{contact_name}}, {{industry}}" oninput="updatePreview()" style="min-height:220px;"></textarea>
+              <div class="hint-vars">Variables: <span>{{business_name}}</span> <span>{{contact_name}}</span> <span>{{industry}}</span></div>
+            </div>
+            <div class="send-feedback" id="c-feedback"></div>
+            <button class="btn-send" id="c-send-btn" onclick="sendEmail()">Send Email →</button>
+          </div>
+        </div>
+        <div class="compose-preview-col">
+          <div class="preview-head"><div class="preview-dot"></div> Live Preview</div>
+          <div class="preview-body">
+            <div class="preview-email-frame">
+              <div class="preview-from">From: Nexus Response &lt;hello@nexusresponse.com.ng&gt;</div>
+              <div class="preview-subject" id="p-subject">Your subject will appear here</div>
+              <div class="preview-content" id="p-body">Start typing to see the preview…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TEMPLATES TAB ─────────────────────────────────────────────────── -->
+    <div class="tab-panel" id="tab-templates">
+      <div class="templates-wrap">
+        <div class="template-list-col" id="template-list-col">
+          <div class="loading">Loading templates…</div>
+        </div>
+        <div class="template-new-col">
+          <div class="template-new-head">
+            <h3>Create / Edit Template</h3>
+          </div>
+          <div class="template-new-body">
+            <div class="form-row">
+              <label class="form-label">ID (slug)</label>
+              <input class="form-input" id="t-id" type="text" placeholder="e.g. roofing-cold-2">
+            </div>
+            <div class="form-row">
+              <label class="form-label">Name</label>
+              <input class="form-input" id="t-name" type="text" placeholder="Template display name">
+            </div>
+            <div class="form-row">
+              <label class="form-label">Industry</label>
+              <select class="form-select" id="t-industry">
+                <option value="">All industries</option>
+                <option value="roofing">Roofing</option>
+                <option value="hvac">HVAC</option>
+                <option value="dental">Dental</option>
+                <option value="legal">Legal</option>
+                <option value="plumbing">Plumbing</option>
+                <option value="med_spa">Med Spa</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="form-label">Subject</label>
+              <input class="form-input" id="t-subject" type="text" placeholder="Email subject">
+            </div>
+            <div class="form-row">
+              <label class="form-label">Body</label>
+              <textarea class="form-textarea" id="t-body" placeholder="Email body… supports {{business_name}} {{contact_name}} {{industry}}" style="min-height:220px;"></textarea>
+              <div class="hint-vars">Variables: <span>{{business_name}}</span> <span>{{contact_name}}</span> <span>{{industry}}</span></div>
+            </div>
+            <div class="send-feedback" id="t-feedback"></div>
+            <button class="btn-send" onclick="saveTemplate()">Save Template</button>
+            <button class="btn-save-notes" onclick="clearTemplateForm()" style="margin-top:0;">Clear Form</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ACTIVITY TAB ──────────────────────────────────────────────────── -->
+    <div class="tab-panel" id="tab-activity">
+      <div class="activity-wrap">
+        <div class="activity-metrics">
+          <div class="metric-box">
+            <div class="metric-val" id="am-total">—</div>
+            <div class="metric-label">Total Prospects</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-val gold" id="am-emailed">—</div>
+            <div class="metric-label">Emails This Week</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-val gold" id="am-demo">—</div>
+            <div class="metric-label">Demo Bookings</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-val green" id="am-activated">—</div>
+            <div class="metric-label">Activated</div>
+          </div>
+          <div class="metric-box">
+            <div class="metric-val" id="am-rate" style="font-size:22px;">—</div>
+            <div class="metric-label">Activation Rate</div>
+          </div>
+        </div>
+        <div class="activity-feed-wrap">
+          <div class="activity-feed-head">
+            <h2>Activity Feed</h2>
+            <div class="live-badge"><div class="live-dot"></div> Live · 30s refresh</div>
+          </div>
+          <div id="activity-feed-list"><div class="loading">Loading activity…</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- ─── ADD PROSPECT MODAL ──────────────────────────────────────────────── -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Add Prospect</h3>
+      <button class="modal-close" onclick="closeAddModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-grid">
+        <div class="form-row">
+          <label class="form-label">Business Name *</label>
+          <input class="form-input" id="m-business" type="text" placeholder="Acme Roofing">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Contact Name</label>
+          <input class="form-input" id="m-contact" type="text" placeholder="John Smith">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Email *</label>
+          <input class="form-input" id="m-email" type="email" placeholder="john@acmeroofing.com">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Phone</label>
+          <input class="form-input" id="m-phone" type="text" placeholder="+1 555 0000">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Industry</label>
+          <select class="form-select" id="m-industry">
+            <option value="">—</option>
+            <option value="roofing">Roofing</option>
+            <option value="hvac">HVAC</option>
+            <option value="dental">Dental</option>
+            <option value="legal">Legal</option>
+            <option value="plumbing">Plumbing</option>
+            <option value="med_spa">Med Spa</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Website</label>
+          <input class="form-input" id="m-website" type="text" placeholder="acmeroofing.com">
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Source</label>
+        <select class="form-select" id="m-source">
+          <option value="manual">Manual</option>
+          <option value="referral">Referral</option>
+          <option value="linkedin">LinkedIn</option>
+          <option value="google">Google</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Notes</label>
+        <input class="form-input" id="m-notes" type="text" placeholder="Any context…">
+      </div>
+      <div class="send-feedback" id="m-feedback"></div>
+      <button class="btn-modal-submit" onclick="submitAddProspect()">Add Prospect</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ──────────────────────────────────────────────────────────────────
+const ADMIN_KEY = new URLSearchParams(location.search).get('key') || '';
+let prospects   = [];
+let templates   = [];
+let activities  = [];
+let pipeline    = {};
+let selectedProspect = null;
+let activityInterval = null;
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadAll();
+  loadTodaysBanner();
+  startActivityPoller();
+});
+
+async function loadAll() {
+  await Promise.all([loadProspects(), loadTemplates(), loadPipeline()]);
+  renderKanban();
+  renderComposeSelectors();
+  renderTemplateList();
+}
+
+// ─── API HELPERS ─────────────────────────────────────────────────────────────
+function apiGet(path) {
+  return fetch(`${path}?key=${ADMIN_KEY}`).then(r => r.json());
+}
+function apiPost(path, body) {
+  return fetch(`${path}?key=${ADMIN_KEY}`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({...body, key: ADMIN_KEY})
+  }).then(r => r.json());
+}
+function apiPatch(path, body) {
+  return fetch(`${path}?key=${ADMIN_KEY}`, {
+    method: 'PATCH',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({...body, key: ADMIN_KEY})
+  }).then(r => r.json());
+}
+function apiDelete(path) {
+  return fetch(`${path}?key=${ADMIN_KEY}`, {method: 'DELETE'}).then(r => r.json());
+}
+
+// ─── LOADERS ─────────────────────────────────────────────────────────────────
+async function loadProspects() {
+  const data = await apiGet('/api/prospects');
+  prospects = data.prospects || [];
+  updateMetrics();
+}
+async function loadTemplates() {
+  const data = await apiGet('/api/templates');
+  templates = data.templates || [];
+}
+async function loadPipeline() {
+  const data = await apiGet('/api/pipeline');
+  pipeline = data;
+  updateMetrics();
+}
+async function loadActivities() {
+  const data = await apiGet('/api/activities');
+  activities = data.activities || [];
+  renderActivityFeed();
+}
+async function loadTodaysBanner() {
+  const data = await apiGet('/api/todays-appointments');
+  const appts = data.appointments || [];
+  const banner = document.getElementById('today-banner');
+  const apptDiv = document.getElementById('today-appts');
+  if (appts.length > 0) {
+    banner.classList.add('visible');
+    apptDiv.innerHTML = appts.map(a =>
+      `<div class="today-appt-chip">${a.slot_label || a.slot_time} — ${a.business_name}</div>`
+    ).join('');
+  }
+}
+
+function updateMetrics() {
+  const total     = prospects.length;
+  const emailed   = prospects.filter(p => p.status === 'contacted' || p.last_contacted_at).length;
+  const demo      = (pipeline.demo_booked || 0);
+  const activated = (pipeline.activated   || 0);
+  const rate      = total > 0 ? ((activated / total) * 100).toFixed(1) + '%' : '0%';
+
+  document.getElementById('m-total').textContent     = total;
+  document.getElementById('m-emailed').textContent   = emailed;
+  document.getElementById('m-demo').textContent      = demo;
+  document.getElementById('m-activated').textContent = activated;
+
+  document.getElementById('am-total').textContent     = total;
+  document.getElementById('am-emailed').textContent   = emailed;
+  document.getElementById('am-demo').textContent      = demo;
+  document.getElementById('am-activated').textContent = activated;
+  document.getElementById('am-rate').textContent      = rate;
+}
+
+// ─── TAB SWITCHING ───────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'activity') loadActivities();
+}
+
+// ─── KANBAN ──────────────────────────────────────────────────────────────────
+const COLUMNS = [
+  {key: 'new',        label: 'New'},
+  {key: 'contacted',  label: 'Contacted'},
+  {key: 'replied',    label: 'Replied'},
+  {key: 'demo_booked',label: 'Demo Booked'},
+  {key: 'activated',  label: 'Activated'},
+  {key: 'lost',       label: 'Lost'},
+];
+
+function renderKanban() {
+  const board = document.getElementById('kanban-board');
+  board.innerHTML = '';
+  COLUMNS.forEach(col => {
+    const cards = prospects.filter(p => p.status === col.key);
+    board.innerHTML += `
+      <div class="kanban-col col-${col.key}">
+        <div class="kanban-col-header">
+          <span class="kanban-col-label">${col.label}</span>
+          <span class="kanban-count">${cards.length}</span>
+        </div>
+        <div class="kanban-cards">
+          ${cards.length === 0
+            ? `<div class="empty-state" style="padding:20px 10px;font-size:10px;">Empty</div>`
+            : cards.map(p => `
+              <div class="prospect-card ${selectedProspect?.id === p.id ? 'selected' : ''}"
+                   onclick="selectProspect('${p.id}')">
+                <div class="card-biz">${esc(p.business_name)}</div>
+                ${p.industry ? `<div class="card-industry">${esc(p.industry)}</div>` : ''}
+                <div class="card-email">${esc(p.email)}</div>
+                <div class="card-date">${p.last_contacted_at ? 'Last: ' + fmtDate(p.last_contacted_at) : 'Not contacted'}</div>
+              </div>`).join('')}
+        </div>
+      </div>`;
+  });
+}
+
+// ─── SIDEBAR ─────────────────────────────────────────────────────────────────
+async function selectProspect(id) {
+  selectedProspect = prospects.find(p => p.id === id);
+  if (!selectedProspect) return;
+  document.querySelectorAll('.prospect-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll(`.prospect-card`).forEach(c => {
+    if (c.getAttribute('onclick') === `selectProspect('${id}')`) c.classList.add('selected');
+  });
+  document.getElementById('sb-biz').textContent      = selectedProspect.business_name;
+  document.getElementById('sb-industry').textContent = selectedProspect.industry || '—';
+  document.getElementById('prospect-sidebar').classList.add('open');
+  renderSidebar(selectedProspect);
+
+  // Load email history + activities in parallel
+  const [emailsData, actsData] = await Promise.all([
+    apiGet(`/api/prospects/${id}/emails`),
+    apiGet(`/api/activities?entity_id=${id}`)
+  ]);
+  renderSidebarFull(selectedProspect, emailsData.emails || [], actsData.activities || []);
+}
+
+function renderSidebar(p) {
+  document.getElementById('sidebar-body').innerHTML = `<div class="loading">Loading details…</div>`;
+}
+
+function renderSidebarFull(p, emails, acts) {
+  document.getElementById('sidebar-body').innerHTML = `
+    <!-- Contact Info -->
+    <div>
+      <div class="sidebar-section-label">Contact Info</div>
+      <div class="sidebar-field"><label>Email</label><span>${esc(p.email)}</span></div>
+      ${p.phone    ? `<div class="sidebar-field"><label>Phone</label><span>${esc(p.phone)}</span></div>` : ''}
+      ${p.website  ? `<div class="sidebar-field"><label>Website</label><span>${esc(p.website)}</span></div>` : ''}
+      ${p.contact_name ? `<div class="sidebar-field"><label>Contact</label><span>${esc(p.contact_name)}</span></div>` : ''}
+      <div class="sidebar-field"><label>Source</label><span>${esc(p.source || 'manual')}</span></div>
+      <div class="sidebar-field"><label>Created</label><span>${fmtDate(p.created_at)}</span></div>
+    </div>
+
+    <!-- Status -->
+    <div>
+      <div class="sidebar-section-label">Status</div>
+      <div class="sidebar-status-row">
+        <select class="status-select" id="sb-status-sel">
+          ${['new','contacted','replied','demo_booked','activated','lost'].map(s =>
+            `<option value="${s}" ${p.status === s ? 'selected' : ''}>${s.replace('_',' ')}</option>`
+          ).join('')}
+        </select>
+        <button class="btn-update-status" onclick="updateStatus('${p.id}')">Save</button>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div>
+      <div class="sidebar-section-label">Notes</div>
+      <textarea class="sidebar-notes" id="sb-notes">${esc(p.notes || '')}</textarea>
+      <div style="display:flex;justify-content:flex-end;">
+        <button class="btn-save-notes" onclick="saveNotes('${p.id}')">Save Notes</button>
+      </div>
+    </div>
+
+    <!-- Send Email -->
+    <div>
+      <button class="btn-send-email-sidebar" onclick="jumpToCompose('${p.id}')">✉ Send Email to This Prospect</button>
+    </div>
+
+    <!-- Email History -->
+    <div>
+      <div class="sidebar-section-label">Email History (${emails.length})</div>
+      ${emails.length === 0
+        ? `<div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">No emails sent yet.</div>`
+        : emails.map(e => `
+          <div class="email-history-item">
+            <div class="email-history-subject">${esc(e.subject || '(no subject)')}</div>
+            <div class="email-history-date">${fmtDate(e.sent_at)} · ${e.status || 'sent'}</div>
+          </div>`).join('')}
+    </div>
+
+    <!-- Activity -->
+    <div>
+      <div class="sidebar-section-label">Activity (${acts.length})</div>
+      ${acts.length === 0
+        ? `<div style="font-size:11px;color:var(--text-dim);font-family:var(--mono);">No activity yet.</div>`
+        : acts.map(a => `
+          <div class="activity-item">
+            <div class="act-dot" style="background:${actColor(a.event)};"></div>
+            <div class="act-content">
+              <div class="act-event">${esc(a.event)}</div>
+              ${a.detail ? `<div class="act-detail">${esc(a.detail)}</div>` : ''}
+            </div>
+            <div class="act-time">${fmtDate(a.created_at)}</div>
+          </div>`).join('')}
+    </div>
+  `;
+}
+
+function closeSidebar() {
+  document.getElementById('prospect-sidebar').classList.remove('open');
+  selectedProspect = null;
+  document.querySelectorAll('.prospect-card').forEach(c => c.classList.remove('selected'));
+}
+
+async function updateStatus(id) {
+  const status = document.getElementById('sb-status-sel').value;
+  await apiPatch(`/api/prospects/${id}`, {status});
+  await loadProspects();
+  await loadPipeline();
+  renderKanban();
+  updateMetrics();
+  // re-render sidebar with updated data
+  const updated = prospects.find(p => p.id === id);
+  if (updated) { selectedProspect = updated; }
+}
+
+async function saveNotes(id) {
+  const notes = document.getElementById('sb-notes').value;
+  await apiPatch(`/api/prospects/${id}`, {notes});
+  await loadProspects();
+}
+
+function jumpToCompose(prospectId) {
+  // Switch to compose tab and pre-select prospect
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-compose').classList.add('active');
+  document.querySelectorAll('.tab-btn')[1].classList.add('active');
+  document.getElementById('c-prospect').value = prospectId;
+  updatePreview();
+}
+
+// ─── COMPOSE ─────────────────────────────────────────────────────────────────
+function renderComposeSelectors() {
+  const pSel = document.getElementById('c-prospect');
+  const existing = pSel.value;
+  pSel.innerHTML = '<option value="">— Select prospect —</option>' +
+    prospects.map(p => `<option value="${p.id}" ${p.id === existing ? 'selected' : ''}>${esc(p.business_name)} &lt;${esc(p.email)}&gt;</option>`).join('');
+
+  const tSel = document.getElementById('c-template');
+  const existingT = tSel.value;
+  tSel.innerHTML = '<option value="">— No template —</option>' +
+    templates.map(t => `<option value="${t.id}" ${t.id === existingT ? 'selected' : ''}>${esc(t.name || t.id)}${t.industry ? ' · ' + t.industry : ''}</option>`).join('');
+}
+
+function applyTemplate() {
+  const id = document.getElementById('c-template').value;
+  const tpl = templates.find(t => t.id === id);
+  if (!tpl) return;
+  document.getElementById('c-subject').value = tpl.subject || '';
+  document.getElementById('c-body').value    = tpl.body    || '';
+  updatePreview();
+}
+
+function substituteVars(text, prospect) {
+  if (!prospect) return text;
+  return text
+    .replace(/\{\{business_name\}\}/g, prospect.business_name || '')
+    .replace(/\{\{contact_name\}\}/g,  prospect.contact_name || prospect.business_name || '')
+    .replace(/\{\{industry\}\}/g,      prospect.industry || '');
+}
+
+function updatePreview() {
+  const prospectId = document.getElementById('c-prospect').value;
+  const prospect   = prospects.find(p => p.id === prospectId);
+  const subject    = substituteVars(document.getElementById('c-subject').value, prospect);
+  const body       = substituteVars(document.getElementById('c-body').value,    prospect);
+  document.getElementById('p-subject').textContent = subject || 'Your subject will appear here';
+  document.getElementById('p-body').textContent    = body    || 'Start typing to see the preview…';
+}
+
+async function sendEmail() {
+  const prospectId  = document.getElementById('c-prospect').value;
+  const subject     = document.getElementById('c-subject').value.trim();
+  const body        = document.getElementById('c-body').value.trim();
+  const templateId  = document.getElementById('c-template').value || null;
+  const fb          = document.getElementById('c-feedback');
+  const btn         = document.getElementById('c-send-btn');
+
+  if (!prospectId || !subject || !body) {
+    showFeedback(fb, 'error', 'Please select a prospect and fill in subject + body.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  fb.className = 'send-feedback';
+
+  const res = await apiPost('/api/send-email', {prospect_id: prospectId, subject, body, template_id: templateId});
+
+  btn.disabled = false;
+  btn.textContent = 'Send Email →';
+
+  if (res.success) {
+    showFeedback(fb, 'success', '✓ Email sent successfully!');
+    await loadProspects();
+    renderKanban();
+    renderComposeSelectors();
+  } else {
+    showFeedback(fb, 'error', 'Send failed: ' + (res.error || 'Unknown error'));
+  }
+}
+
+// ─── TEMPLATES ───────────────────────────────────────────────────────────────
+function renderTemplateList() {
+  const col = document.getElementById('template-list-col');
+  if (templates.length === 0) {
+    col.innerHTML = `<div class="empty-state"><div class="empty-icon">📄</div>No templates yet</div>`;
+    return;
+  }
+  col.innerHTML = templates.map(t => `
+    <div class="template-card">
+      <div class="tpl-name">${esc(t.name || t.id)}</div>
+      <div class="tpl-subject">${esc(t.subject || '')}</div>
+      <div class="tpl-tags">
+        ${t.industry ? `<span class="tpl-industry">${esc(t.industry)}</span>` : ''}
+        <span class="tpl-id">${esc(t.id)}</span>
+        <div class="template-actions">
+          <button class="btn-tpl-use" onclick="editTemplate('${t.id}')">Edit</button>
+          <button class="btn-tpl-delete" onclick="deleteTemplate('${t.id}')">Delete</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function editTemplate(id) {
+  const t = templates.find(t => t.id === id);
+  if (!t) return;
+  document.getElementById('t-id').value       = t.id;
+  document.getElementById('t-name').value     = t.name || '';
+  document.getElementById('t-industry').value = t.industry || '';
+  document.getElementById('t-subject').value  = t.subject || '';
+  document.getElementById('t-body').value     = t.body || '';
+}
+
+async function saveTemplate() {
+  const id       = document.getElementById('t-id').value.trim();
+  const name     = document.getElementById('t-name').value.trim();
+  const industry = document.getElementById('t-industry').value;
+  const subject  = document.getElementById('t-subject').value.trim();
+  const body     = document.getElementById('t-body').value.trim();
+  const fb       = document.getElementById('t-feedback');
+
+  if (!id || !subject || !body) {
+    showFeedback(fb, 'error', 'ID, subject, and body are required.');
+    return;
+  }
+  const res = await apiPost('/api/templates', {id, name, industry, subject, body});
+  if (res.success || res.template) {
+    showFeedback(fb, 'success', '✓ Template saved!');
+    await loadTemplates();
+    renderTemplateList();
+    renderComposeSelectors();
+  } else {
+    showFeedback(fb, 'error', 'Save failed: ' + (res.error || 'Unknown error'));
+  }
+}
+
+async function deleteTemplate(id) {
+  if (!confirm(`Delete template "${id}"? This cannot be undone.`)) return;
+  await apiDelete(`/api/templates/${id}`);
+  await loadTemplates();
+  renderTemplateList();
+  renderComposeSelectors();
+}
+
+function clearTemplateForm() {
+  ['t-id','t-name','t-subject','t-body'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('t-industry').value = '';
+  document.getElementById('t-feedback').className = 'send-feedback';
+}
+
+// ─── ACTIVITY FEED ───────────────────────────────────────────────────────────
+function renderActivityFeed() {
+  const list = document.getElementById('activity-feed-list');
+  if (activities.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div>No activity yet</div>`;
+    return;
+  }
+  list.innerHTML = activities.map(a => `
+    <div class="activity-row">
+      <div class="a-dot" style="background:${actColor(a.event)};"></div>
+      <div class="a-body">
+        <div class="a-event">${esc(a.event)}</div>
+        ${a.detail ? `<div class="a-detail">${esc(a.detail)}</div>` : ''}
+        ${a.entity_type ? `<div class="a-meta">${esc(a.entity_type)}</div>` : ''}
+      </div>
+      <div class="a-meta">${fmtDate(a.created_at)}</div>
+    </div>`).join('');
+}
+
+function startActivityPoller() {
+  if (activityInterval) clearInterval(activityInterval);
+  activityInterval = setInterval(() => {
+    const activeTab = document.querySelector('.tab-panel.active');
+    if (activeTab && activeTab.id === 'tab-activity') loadActivities();
+    updateMetrics();
+  }, 30000);
+}
+
+// ─── ADD PROSPECT MODAL ───────────────────────────────────────────────────────
+function openAddModal() {
+  document.getElementById('add-modal').classList.add('open');
+}
+function closeAddModal() {
+  document.getElementById('add-modal').classList.remove('open');
+}
+async function submitAddProspect() {
+  const business = document.getElementById('m-business').value.trim();
+  const email    = document.getElementById('m-email').value.trim();
+  const fb       = document.getElementById('m-feedback');
+
+  if (!business || !email) {
+    showFeedback(fb, 'error', 'Business name and email are required.');
+    return;
+  }
+  const res = await apiPost('/api/prospects', {
+    business_name: business,
+    contact_name:  document.getElementById('m-contact').value.trim(),
+    email,
+    phone:    document.getElementById('m-phone').value.trim(),
+    industry: document.getElementById('m-industry').value,
+    website:  document.getElementById('m-website').value.trim(),
+    source:   document.getElementById('m-source').value,
+    notes:    document.getElementById('m-notes').value.trim(),
+  });
+  if (res.success) {
+    showFeedback(fb, 'success', '✓ Prospect added!');
+    await loadProspects();
+    await loadPipeline();
+    renderKanban();
+    renderComposeSelectors();
+    setTimeout(closeAddModal, 900);
+    // Clear form
+    ['m-business','m-contact','m-email','m-phone','m-website','m-notes'].forEach(id =>
+      document.getElementById(id).value = ''
+    );
+  } else {
+    showFeedback(fb, 'error', 'Error: ' + (res.error || 'Unknown error'));
+  }
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function esc(str) {
+  if (str == null) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    const now = new Date();
+    const diff = now - d;
+    if (diff < 60000)      return 'just now';
+    if (diff < 3600000)    return Math.floor(diff/60000) + 'm ago';
+    if (diff < 86400000)   return Math.floor(diff/3600000) + 'h ago';
+    if (diff < 604800000)  return Math.floor(diff/86400000) + 'd ago';
+    return d.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'2-digit'});
+  } catch { return iso; }
+}
+
+function actColor(event) {
+  if (!event) return 'var(--text-dim)';
+  const e = event.toLowerCase();
+  if (e.includes('activat')) return 'var(--green)';
+  if (e.includes('email'))   return 'var(--gold)';
+  if (e.includes('demo') || e.includes('booking') || e.includes('deployment')) return 'var(--blue)';
+  return 'rgba(240,237,232,0.3)';
+}
+
+function showFeedback(el, type, msg) {
+  el.textContent = msg;
+  el.className = 'send-feedback ' + type;
+  setTimeout(() => { el.className = 'send-feedback'; }, 4000);
+}
+
+// Close modal on overlay click
+document.getElementById('add-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeAddModal();
+});
+</script>
+</body>
+</html>

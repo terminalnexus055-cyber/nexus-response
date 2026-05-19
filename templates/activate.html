@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activate Nexus Response — Deploy For Your Business</title>
+<meta name="description" content="Begin your Nexus Response operational deployment. Configure missed-call engagement infrastructure for your business.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --ink:#07050F;--ink2:#0D0B1A;--ink3:#161228;--surface:#1A1730;
+  --gold:#C9A84C;--gold2:#E2C06A;--gold-glow:rgba(201,168,76,0.18);
+  --blue:#4A90D9;--green:#1DB954;--red:#D94040;
+  --white:#F0EDE8;--muted:rgba(240,237,232,0.38);
+  --dim:rgba(240,237,232,0.07);--dim2:rgba(240,237,232,0.04);
+  --mono:'IBM Plex Mono',monospace;--display:'Archivo Black',sans-serif;--body:'DM Sans',sans-serif;
+}
+body{background:var(--ink);color:var(--white);font-family:var(--body);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:0 48px;height:56px;border-bottom:1px solid var(--dim);background:rgba(7,5,15,0.97);position:sticky;top:0;z-index:100;}
+.nav-back{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:8px;transition:color .2s;}
+.nav-back::before{content:'←';color:rgba(240,237,232,0.2);}
+.nav-back:hover{color:var(--white);}
+.nav-tag{font-family:var(--mono);font-size:10px;letter-spacing:3px;color:rgba(201,168,76,0.5);text-transform:uppercase;}
+
+/* PROGRESS BAR */
+.progress-wrap{background:var(--dim);height:2px;position:sticky;top:56px;z-index:99;}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));transition:width 0.5s ease;width:25%;}
+
+/* LAYOUT */
+.page{max-width:680px;margin:0 auto;padding:60px 24px 100px;}
+
+/* STEP INDICATOR */
+.step-indicator{display:flex;align-items:center;gap:0;margin-bottom:48px;}
+.si-item{display:flex;align-items:center;gap:0;flex:1;}
+.si-dot{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--dim);background:var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;color:rgba(240,237,232,0.2);flex-shrink:0;transition:all 0.3s;letter-spacing:0;}
+.si-dot.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.08);}
+.si-dot.done{border-color:var(--green);background:var(--green);color:var(--ink);}
+.si-dot.done::after{content:'✓';font-size:11px;font-weight:700;}
+.si-dot.done span{display:none;}
+.si-line{flex:1;height:1px;background:var(--dim);transition:background 0.3s;}
+.si-line.done{background:var(--green);}
+.si-label{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:rgba(240,237,232,0.2);margin-top:6px;text-align:center;white-space:nowrap;}
+.si-item-wrap{display:flex;flex-direction:column;align-items:center;}
+
+/* STEP PANELS */
+.step-panel{display:none;animation:stepIn 0.4s ease;}
+.step-panel.active{display:block;}
+@keyframes stepIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* STEP HEADER */
+.step-tag{font-family:var(--mono);font-size:9px;letter-spacing:4px;color:rgba(201,168,76,0.5);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.step-tag::before{content:'';width:14px;height:1px;background:var(--gold);opacity:0.4;}
+.step-h{font-family:var(--display);font-size:clamp(28px,4vw,44px);text-transform:uppercase;letter-spacing:-1.5px;line-height:0.9;margin-bottom:12px;}
+.step-h .out{color:transparent;-webkit-text-stroke:1px rgba(201,168,76,0.35);}
+.step-sub{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:36px;}
+
+/* FORM FIELDS */
+.field{margin-bottom:18px;}
+.field-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:rgba(240,237,232,0.32);text-transform:uppercase;display:block;margin-bottom:7px;}
+.field-input{width:100%;padding:12px 16px;background:rgba(240,237,232,0.04);border:1px solid var(--dim);color:var(--white);font-size:14px;font-family:var(--body);border-radius:2px;outline:none;transition:border 0.2s;}
+.field-input:focus{border-color:rgba(201,168,76,0.35);}
+.field-input::placeholder{color:rgba(240,237,232,0.18);}
+.field-select{width:100%;padding:12px 16px;background:var(--ink2);border:1px solid var(--dim);color:var(--white);font-size:14px;font-family:var(--body);border-radius:2px;outline:none;transition:border 0.2s;cursor:pointer;-webkit-appearance:none;}
+.field-select:focus{border-color:rgba(201,168,76,0.35);}
+.field-select option{background:var(--ink2);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+/* RADIO OPTIONS */
+.radio-grid{display:flex;flex-direction:column;gap:8px;}
+.radio-opt{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--ink2);border:1px solid var(--dim);border-radius:2px;cursor:pointer;transition:all 0.18s;}
+.radio-opt:hover{border-color:rgba(201,168,76,0.2);background:var(--ink3);}
+.radio-opt.selected{border-color:var(--gold);background:rgba(201,168,76,0.06);}
+.radio-opt input{display:none;}
+.radio-check{width:16px;height:16px;border-radius:50%;border:1.5px solid rgba(240,237,232,0.2);flex-shrink:0;margin-top:2px;transition:all 0.18s;display:flex;align-items:center;justify-content:center;}
+.radio-opt.selected .radio-check{border-color:var(--gold);background:var(--gold);}
+.radio-opt.selected .radio-check::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--ink);}
+.radio-text{font-size:14px;color:var(--white);line-height:1.4;}
+.radio-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+
+/* STEP 3 - INFRASTRUCTURE PREVIEW */
+.infra-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--dim);border-radius:3px;overflow:hidden;margin-bottom:32px;}
+.infra-item{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--dim);background:var(--ink2);opacity:0;transform:translateX(-8px);transition:all 0.4s ease;}
+.infra-item:last-child{border:none;}
+.infra-item.deployed{opacity:1;transform:none;}
+.infra-icon{width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(201,168,76,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.4s;}
+.infra-icon svg{stroke:rgba(201,168,76,0.4);width:14px;height:14px;stroke-width:1.5;fill:none;stroke-linecap:round;stroke-linejoin:round;transition:all 0.4s;}
+.infra-item.deployed .infra-icon{border-color:var(--green);background:rgba(29,185,84,0.08);}
+.infra-item.deployed .infra-icon svg{stroke:var(--green);}
+.infra-text{flex:1;}
+.infra-name{font-size:14px;color:var(--white);margin-bottom:2px;}
+.infra-desc{font-size:12px;color:var(--muted);}
+.infra-status{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(240,237,232,0.2);transition:color 0.4s;}
+.infra-item.deployed .infra-status{color:rgba(29,185,84,0.6);}
+
+.infra-summary{padding:16px 20px;background:rgba(29,185,84,0.05);border:1px solid rgba(29,185,84,0.15);border-radius:3px;display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;opacity:0;transition:opacity 0.5s ease;}
+.infra-summary.show{opacity:1;}
+.is-label{font-family:var(--mono);font-size:9px;color:rgba(29,185,84,0.5);letter-spacing:2px;text-transform:uppercase;}
+.is-val{font-family:var(--display);font-size:16px;color:var(--green);}
+
+/* STEP 4 - SLOTS */
+.slots-intro{font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:28px;}
+.week-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:rgba(201,168,76,0.45);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.week-label::after{content:'';flex:1;height:1px;background:var(--dim);}
+.slots-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:24px;}
+.slot-btn{padding:14px 10px;background:var(--ink2);border:1px solid var(--dim);border-radius:2px;cursor:pointer;transition:all 0.18s;text-align:center;font-family:var(--mono);}
+.slot-btn:hover:not(.taken){border-color:rgba(201,168,76,0.25);background:var(--ink3);}
+.slot-btn.selected{border-color:var(--gold);background:rgba(201,168,76,0.08);}
+.slot-btn.taken{opacity:0.3;cursor:not-allowed;position:relative;}
+.slot-btn.taken::after{content:'BOOKED';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:8px;letter-spacing:2px;color:var(--muted);background:rgba(7,5,15,0.7);}
+.slot-day{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(240,237,232,0.35);margin-bottom:4px;}
+.slot-time{font-size:13px;color:var(--white);}
+.slot-time.selected-text{color:var(--gold);}
+.slot-tz{font-size:8px;color:rgba(240,237,232,0.2);margin-top:2px;letter-spacing:1px;}
+.loading-slots{font-family:var(--mono);font-size:11px;color:rgba(240,237,232,0.2);letter-spacing:2px;text-align:center;padding:24px;}
+
+/* BUTTONS */
+.btn-next{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold2),var(--gold));color:var(--ink);font-weight:800;font-size:13px;letter-spacing:2px;text-transform:uppercase;border:none;cursor:pointer;border-radius:2px;transition:all 0.2s;margin-top:8px;}
+.btn-next:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 10px 28px rgba(201,168,76,0.22);}
+.btn-next:disabled{opacity:0.3;cursor:not-allowed;transform:none;}
+.btn-back{width:100%;padding:11px;background:transparent;color:var(--muted);border:1px solid var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all 0.2s;margin-top:8px;}
+.btn-back:hover{border-color:rgba(240,237,232,0.2);color:var(--white);}
+
+/* CONFIRMATION */
+.confirm-wrap{text-align:center;padding:20px 0;}
+.confirm-icon{width:64px;height:64px;border-radius:50%;border:2px solid var(--green);background:rgba(29,185,84,0.06);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;}
+.confirm-icon svg{stroke:var(--green);width:28px;height:28px;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.confirm-tag{font-family:var(--mono);font-size:9px;letter-spacing:4px;color:rgba(29,185,84,0.5);text-transform:uppercase;margin-bottom:16px;}
+.confirm-h{font-family:var(--display);font-size:clamp(24px,3.5vw,38px);text-transform:uppercase;letter-spacing:-1.5px;line-height:0.9;margin-bottom:20px;}
+.confirm-slot{display:inline-flex;align-items:center;gap:10px;padding:12px 20px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.25);border-radius:2px;margin-bottom:24px;}
+.cs-icon{font-size:16px;}
+.cs-text{font-family:var(--mono);font-size:12px;color:var(--gold);letter-spacing:1px;}
+.confirm-p{font-size:14px;color:var(--muted);line-height:1.8;max-width:480px;margin:0 auto 28px;}
+.confirm-steps{text-align:left;background:var(--ink2);border:1px solid var(--dim);border-radius:3px;padding:20px;margin-bottom:0;}
+.cs-label{font-family:var(--mono);font-size:9px;color:rgba(240,237,232,0.2);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
+.cs-step{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--dim2);font-size:13px;color:rgba(240,237,232,0.55);line-height:1.5;}
+.cs-step:last-child{border:none;}
+.cs-n{font-family:var(--mono);font-size:10px;color:var(--gold);flex-shrink:0;margin-top:1px;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-back" href="/">Nexus Response</a>
+  <div class="nav-tag">Operational Activation</div>
+</nav>
+<div class="progress-wrap">
+  <div class="progress-bar" id="progress-bar"></div>
+</div>
+
+<div class="page">
+
+  <!-- STEP INDICATOR -->
+  <div class="step-indicator" id="step-indicator">
+    <div class="si-item">
+      <div class="si-item-wrap">
+        <div class="si-dot active" id="dot-1"><span>1</span></div>
+        <div class="si-label">Business</div>
+      </div>
+      <div class="si-line" id="line-1"></div>
+    </div>
+    <div class="si-item">
+      <div class="si-item-wrap">
+        <div class="si-dot" id="dot-2"><span>2</span></div>
+        <div class="si-label">Operations</div>
+      </div>
+      <div class="si-line" id="line-2"></div>
+    </div>
+    <div class="si-item">
+      <div class="si-item-wrap">
+        <div class="si-dot" id="dot-3"><span>3</span></div>
+        <div class="si-label">Infrastructure</div>
+      </div>
+      <div class="si-line" id="line-3"></div>
+    </div>
+    <div class="si-item-wrap">
+      <div class="si-dot" id="dot-4"><span>4</span></div>
+      <div class="si-label">Deploy</div>
+    </div>
+  </div>
+
+  <!-- STEP 1: BUSINESS INFO -->
+  <div class="step-panel active" id="step-1">
+    <div class="step-tag">Step 1 of 4 — Business Identity</div>
+    <h1 class="step-h">Tell Us About<br>Your <span class="out">Business.</span></h1>
+    <p class="step-sub">We configure Nexus specifically for your business type, tone, and operational needs. This takes 60 seconds.</p>
+
+    <div class="field">
+      <label class="field-label">Business Name</label>
+      <input class="field-input" type="text" id="f-bizname" placeholder="Apex Roofing Co." autocomplete="organization">
+    </div>
+    <div class="field">
+      <label class="field-label">Industry</label>
+      <select class="field-select" id="f-industry">
+        <option value="" disabled selected>Select your industry</option>
+        <option value="roofing">Roofing</option>
+        <option value="hvac">HVAC</option>
+        <option value="dental">Dental / Healthcare</option>
+        <option value="legal">Legal / Attorney</option>
+        <option value="plumbing">Plumbing</option>
+        <option value="medspa">Med Spa / Aesthetics</option>
+        <option value="restoration">Restoration / Remediation</option>
+        <option value="realestate">Real Estate</option>
+        <option value="other">Other High-Ticket Service</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label class="field-label">Business Phone</label>
+        <input class="field-input" type="tel" id="f-phone" placeholder="+1 (415) 555-0000">
+      </div>
+      <div class="field">
+        <label class="field-label">Your Name</label>
+        <input class="field-input" type="text" id="f-name" placeholder="James Rodriguez">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field-label">Email Address</label>
+      <input class="field-input" type="email" id="f-email" placeholder="james@apexroofing.com">
+    </div>
+    <div class="field">
+      <label class="field-label">Website (optional)</label>
+      <input class="field-input" type="url" id="f-website" placeholder="apexroofing.com">
+    </div>
+
+    <button class="btn-next" onclick="goStep(2)">Continue — Operational Audit →</button>
+  </div>
+
+  <!-- STEP 2: OPERATIONAL AUDIT -->
+  <div class="step-panel" id="step-2">
+    <div class="step-tag">Step 2 of 4 — Operational Audit</div>
+    <h1 class="step-h">How Does Your<br>Business <span class="out">Currently</span><br>Handle Calls?</h1>
+    <p class="step-sub">This helps us configure the right response workflows for your operation.</p>
+
+    <div class="field">
+      <label class="field-label">Weekly inbound call volume</label>
+      <div class="radio-grid">
+        <label class="radio-opt" onclick="selectRadio(this,'volume')">
+          <input type="radio" name="volume" value="1-10">
+          <div class="radio-check"></div>
+          <div><div class="radio-text">1–10 calls per week</div><div class="radio-sub">Boutique / small team</div></div>
+        </label>
+        <label class="radio-opt" onclick="selectRadio(this,'volume')">
+          <input type="radio" name="volume" value="10-30">
+          <div class="radio-check"></div>
+          <div><div class="radio-text">10–30 calls per week</div><div class="radio-sub">Growing operation</div></div>
+        </label>
+        <label class="radio-opt" onclick="selectRadio(this,'volume')">
+          <input type="radio" name="volume" value="30+">
+          <div class="radio-check"></div>
+          <div><div class="radio-text">30+ calls per week</div><div class="radio-sub">High-volume operation</div></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:24px;">
+      <label class="field-label">How do you currently follow up on missed calls?</label>
+      <div class="radio-grid">
+        <label class="radio-opt" onclick="selectRadio(this,'followup')">
+          <input type="radio" name="followup" value="manual">
+          <div class="radio-check"></div>
+          <div><div class="radio-text">We call back manually when we can</div></div>
+        </label>
+        <label class="radio-opt" onclick="selectRadio(this,'followup')">
+          <input type="radio" name="followup" value="voicemail">
+          <div class="radio-check"></div>
+          <div><div class="radio-text">We rely on voicemail</div></div>
+        </label>
+        <label class="radio-opt" onclick="selectRadio(this,'followup')">
+          <input type="radio" name="followup" value="nothing">
+          <div class="radio-check"></div>
+          <div><div class="radio-text">We don't — leads are lost</div></div>
+        </label>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:24px;">
+      <label class="field-label">Biggest operational pain right now</label>
+      <div class="radio-grid">
+        <label class="radio-opt" onclick="selectRadio(this,'pain')">
+          <input type="radio" name="pain" value="after-hours">
+          <div class="radio-check"></div>
+          <div><div class="radio-text">After-hours and weekend calls</div><div class="radio-sub">Leads calling when nobody's available</div></div>
+        </label>
+        <label class="radio-opt" onclick="selectRadio(this,'pain')">
+          <input type="radio" name="pain" value="busy">
+          <div class="radio-check"></div>
+          <div><div class="radio-text">Team too busy to answer</div><div class="radio-sub">Calls missed during active jobs</div></div>
+        </label>
+        <label class="radio-opt" onclick="selectRadio(this,'pain')">
+          <input type="radio" name="pain" value="slow-followup">
+          <div class="radio-check"></div>
+          <div><div class="radio-text">Slow follow-up losing leads to competitors</div></div>
+        </label>
+        <label class="radio-opt" onclick="selectRadio(this,'pain')">
+          <input type="radio" name="pain" value="all">
+          <div class="radio-check"></div>
+          <div><div class="radio-text">All of the above</div></div>
+        </label>
+      </div>
+    </div>
+
+    <button class="btn-next" onclick="goStep(3)">Continue — Infrastructure Preview →</button>
+    <button class="btn-back" onclick="goStep(1)">← Back</button>
+  </div>
+
+  <!-- STEP 3: INFRASTRUCTURE PREVIEW -->
+  <div class="step-panel" id="step-3">
+    <div class="step-tag">Step 3 of 4 — Infrastructure Preview</div>
+    <h1 class="step-h">Your Nexus<br><span class="out">Deployment</span><br>Stack.</h1>
+    <p class="step-sub">Here's what gets configured on your business line during deployment.</p>
+
+    <div class="infra-list" id="infra-list">
+      <div class="infra-item" id="ii-1">
+        <div class="infra-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.95-1.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="infra-text">
+          <div class="infra-name">Missed-Call Detection</div>
+          <div class="infra-desc">Instant trigger on every unanswered call — 24/7</div>
+        </div>
+        <div class="infra-status">Deploying...</div>
+      </div>
+      <div class="infra-item" id="ii-2">
+        <div class="infra-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="infra-text">
+          <div class="infra-name">Instant SMS Engagement</div>
+          <div class="infra-desc">Lead receives personalised message in under 10 seconds</div>
+        </div>
+        <div class="infra-status">Deploying...</div>
+      </div>
+      <div class="infra-item" id="ii-3">
+        <div class="infra-icon">
+          <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="infra-text">
+          <div class="infra-name">Lead Qualification Workflow</div>
+          <div class="infra-desc">AI routes emergency, booking, and inquiry intents correctly</div>
+        </div>
+        <div class="infra-status">Deploying...</div>
+      </div>
+      <div class="infra-item" id="ii-4">
+        <div class="infra-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="infra-text">
+          <div class="infra-name">Appointment Booking Engine</div>
+          <div class="infra-desc">Leads book directly through conversation — no manual steps</div>
+        </div>
+        <div class="infra-status">Deploying...</div>
+      </div>
+      <div class="infra-item" id="ii-5">
+        <div class="infra-icon">
+          <svg viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+        </div>
+        <div class="infra-text">
+          <div class="infra-name">Operational Dashboard</div>
+          <div class="infra-desc">Real-time lead status, conversation history, revenue tracking</div>
+        </div>
+        <div class="infra-status">Deploying...</div>
+      </div>
+      <div class="infra-item" id="ii-6">
+        <div class="infra-icon">
+          <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <div class="infra-text">
+          <div class="infra-name">Emergency Escalation Protocol</div>
+          <div class="infra-desc">Urgent leads trigger immediate owner alert — no delays</div>
+        </div>
+        <div class="infra-status">Deploying...</div>
+      </div>
+    </div>
+
+    <div class="infra-summary" id="infra-summary">
+      <div>
+        <div class="is-label">Deployment Status</div>
+        <div class="is-val" id="biz-name-preview">Infrastructure Ready</div>
+      </div>
+      <div style="font-family:var(--mono);font-size:10px;color:rgba(29,185,84,0.5);letter-spacing:2px;">6 / 6 MODULES</div>
+    </div>
+
+    <button class="btn-next" id="step3-next" onclick="goStep(4)" disabled>Schedule Deployment Review →</button>
+    <button class="btn-back" onclick="goStep(2)">← Back</button>
+  </div>
+
+  <!-- STEP 4: DEPLOYMENT REVIEW SLOT -->
+  <div class="step-panel" id="step-4">
+    <div class="step-tag">Step 4 of 4 — Deployment Review</div>
+    <h1 class="step-h">Select Your<br><span class="out">Deployment</span><br>Review Slot.</h1>
+    <p class="slots-intro">Choose a time for your operational setup call. We'll configure Nexus on your business line during this session — you'll be live before the call ends.</p>
+
+    <div id="slots-container">
+      <div class="loading-slots">Loading available slots...</div>
+    </div>
+
+    <button class="btn-next" id="confirm-btn" onclick="confirmBooking()" disabled>Confirm Deployment →</button>
+    <button class="btn-back" onclick="goStep(3)">← Back</button>
+  </div>
+
+  <!-- STEP 5: CONFIRMED -->
+  <div class="step-panel" id="step-5">
+    <div class="confirm-wrap">
+      <div class="confirm-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="confirm-tag">Activation Request Submitted</div>
+      <h2 class="confirm-h">Nexus Response<br>Deployment<br>Confirmed.</h2>
+      <div class="confirm-slot">
+        <span class="cs-icon">📅</span>
+        <span class="cs-text" id="confirmed-slot-text">Mon 9:00 AM WAT</span>
+      </div>
+      <p class="confirm-p">Our team is preparing your operational setup review. A confirmation has been sent to your email. We'll configure everything on the call — your business will be live and catching missed leads the same day.</p>
+      <div class="confirm-steps">
+        <div class="cs-label">What happens next</div>
+        <div class="cs-step"><div class="cs-n">01</div>Check your email — confirmation with call details incoming</div>
+        <div class="cs-step"><div class="cs-n">02</div>On the call: we configure your missed-call response workflows</div>
+        <div class="cs-step"><div class="cs-n">03</div>Forward your business line — takes 2 minutes</div>
+        <div class="cs-step"><div class="cs-n">04</div>Nexus goes live — your leads stop going to voicemail</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── STATE ──
+let currentStep = 1;
+let selectedSlot = null;
+let formData = {};
+
+// ── STEP NAVIGATION ──
+function goStep(n) {
+  if (n > 1 && !validateStep(currentStep)) return;
+
+  document.getElementById(`step-${currentStep}`).classList.remove('active');
+  document.getElementById(`step-${n}`).classList.add('active');
+
+  // Update indicators
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById(`dot-${i}`);
+    const line = document.getElementById(`line-${i}`);
+    dot.className = 'si-dot';
+    if (i < n) { dot.classList.add('done'); if (line) line.classList.add('done'); }
+    else if (i === n) { dot.classList.add('active'); }
+    else { if (line) line.classList.remove('done'); }
+  }
+
+  // Update progress bar
+  const pct = { 1: 25, 2: 50, 3: 75, 4: 100 };
+  document.getElementById('progress-bar').style.width = (pct[n] || 100) + '%';
+
+  currentStep = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  if (n === 3) startInfraAnimation();
+  if (n === 4) loadSlots();
+}
+
+// ── VALIDATION ──
+function validateStep(n) {
+  if (n === 1) {
+    const biz = document.getElementById('f-bizname').value.trim();
+    const ind = document.getElementById('f-industry').value;
+    const phone = document.getElementById('f-phone').value.trim();
+    const name = document.getElementById('f-name').value.trim();
+    const email = document.getElementById('f-email').value.trim();
+    if (!biz || !ind || !phone || !name || !email) {
+      highlight(['f-bizname','f-industry','f-phone','f-name','f-email'].filter(id => !document.getElementById(id).value.trim()));
+      return false;
+    }
+    formData.bizName = biz;
+    formData.industry = ind;
+    formData.phone = phone;
+    formData.name = name;
+    formData.email = email;
+    formData.website = document.getElementById('f-website').value.trim();
+    document.getElementById('biz-name-preview').textContent = biz + ' — Infrastructure Ready';
+  }
+  if (n === 2) {
+    const v = document.querySelector('input[name="volume"]:checked');
+    const f = document.querySelector('input[name="followup"]:checked');
+    const p = document.querySelector('input[name="pain"]:checked');
+    if (!v || !f || !p) { alert('Please complete all questions.'); return false; }
+    formData.volume = v.value;
+    formData.followup = f.value;
+    formData.pain = p.value;
+  }
+  return true;
+}
+
+function highlight(ids) {
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.borderColor = 'rgba(217,64,64,0.5)';
+    el.focus();
+    setTimeout(() => el.style.borderColor = '', 2000);
+  });
+}
+
+// ── RADIO SELECT ──
+function selectRadio(el, group) {
+  document.querySelectorAll(`input[name="${group}"]`).forEach(r => {
+    r.closest('.radio-opt').classList.remove('selected');
+  });
+  el.classList.add('selected');
+  el.querySelector('input').checked = true;
+}
+
+// ── INFRA ANIMATION ──
+function startInfraAnimation() {
+  const items = document.querySelectorAll('.infra-item');
+  const btn = document.getElementById('step3-next');
+  items.forEach(el => { el.classList.remove('deployed'); });
+  document.getElementById('infra-summary').classList.remove('show');
+  btn.disabled = true;
+
+  items.forEach((item, i) => {
+    setTimeout(() => {
+      item.classList.add('deployed');
+      item.querySelector('.infra-status').textContent = 'Active';
+      if (i === items.length - 1) {
+        setTimeout(() => {
+          document.getElementById('infra-summary').classList.add('show');
+          btn.disabled = false;
+        }, 400);
+      }
+    }, i * 500 + 400);
+  });
+}
+
+// ── SLOT LOADING ──
+async function loadSlots() {
+  const container = document.getElementById('slots-container');
+  container.innerHTML = '<div class="loading-slots">Loading available slots...</div>';
+  selectedSlot = null;
+  document.getElementById('confirm-btn').disabled = true;
+
+  try {
+    const res = await fetch('/api/slots');
+    const data = await res.json();
+    renderSlots(data.slots || []);
+  } catch(e) {
+    // Fallback: show default slots if API fails
+    renderSlots(getDefaultSlots());
+  }
+}
+
+function getDefaultSlots() {
+  const slots = [];
+  const now = new Date();
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const times = ['09:00','11:00','14:00','16:00'];
+  const timeLabels = ['9:00 AM','11:00 AM','2:00 PM','4:00 PM'];
+
+  // Generate next 10 weekdays
+  let d = new Date(now);
+  d.setDate(d.getDate() + 1);
+  let added = 0;
+  while (added < 20) {
+    const dow = d.getDay();
+    if (dow >= 1 && dow <= 5) {
+      times.forEach((t, ti) => {
+        slots.push({
+          date: d.toISOString().split('T')[0],
+          day: days[dow],
+          time: t,
+          label: `${days[dow]} ${timeLabels[ti]}`,
+          taken: false
+        });
+      });
+      added++;
+    }
+    // Saturday
+    if (dow === 6) {
+      ['10:00','12:00'].forEach((t, ti) => {
+        slots.push({
+          date: d.toISOString().split('T')[0],
+          day: 'Sat',
+          time: t,
+          label: `Sat ${ti === 0 ? '10:00 AM' : '12:00 PM'}`,
+          taken: false
+        });
+      });
+    }
+    d.setDate(d.getDate() + 1);
+  }
+  return slots;
+}
+
+function renderSlots(slots) {
+  const container = document.getElementById('slots-container');
+  if (!slots.length) {
+    container.innerHTML = '<div class="loading-slots">No slots available — please contact us directly.</div>';
+    return;
+  }
+
+  // Group by week
+  const weeks = {};
+  slots.forEach(s => {
+    const d = new Date(s.date + 'T00:00:00');
+    const weekStart = new Date(d);
+    weekStart.setDate(d.getDate() - d.getDay());
+    const wk = weekStart.toISOString().split('T')[0];
+    if (!weeks[wk]) weeks[wk] = [];
+    weeks[wk].push(s);
+  });
+
+  let html = '';
+  Object.entries(weeks).slice(0, 2).forEach(([wk, wSlots]) => {
+    const wDate = new Date(wk + 'T00:00:00');
+    const wLabel = wDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    html += `<div class="week-label">Week of ${wLabel}</div><div class="slots-grid">`;
+    wSlots.slice(0, 12).forEach(s => {
+      const takenClass = s.taken ? 'taken' : '';
+      const timeDisplay = formatTime(s.time);
+      html += `
+        <div class="slot-btn ${takenClass}" onclick="pickSlot(this,'${s.label}','${s.date}','${s.time}')">
+          <div class="slot-day">${s.day}</div>
+          <div class="slot-time">${timeDisplay}</div>
+          <div class="slot-tz">WAT</div>
+        </div>`;
+    });
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+function formatTime(t) {
+  const [h, m] = t.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  return `${h12}:${m.toString().padStart(2,'0')} ${ampm}`;
+}
+
+function pickSlot(el, label, date, time) {
+  if (el.classList.contains('taken')) return;
+  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedSlot = { label, date, time };
+  document.getElementById('confirm-btn').disabled = false;
+}
+
+// ── CONFIRM BOOKING ──
+async function confirmBooking() {
+  if (!selectedSlot) return;
+  const btn = document.getElementById('confirm-btn');
+  btn.disabled = true;
+  btn.textContent = 'Confirming...';
+
+  try {
+    const fd = new FormData();
+    fd.append('name', formData.name);
+    fd.append('email', formData.email);
+    fd.append('phone', formData.phone);
+    fd.append('business', formData.bizName);
+    fd.append('industry', formData.industry);
+    fd.append('website', formData.website || '');
+    fd.append('volume', formData.volume || '');
+    fd.append('followup', formData.followup || '');
+    fd.append('pain', formData.pain || '');
+    fd.append('slot_label', selectedSlot.label);
+    fd.append('slot_date', selectedSlot.date);
+    fd.append('slot_time', selectedSlot.time);
+
+    await fetch('/activate', { method: 'POST', body: fd });
+  } catch(e) {}
+
+  // Show confirmation regardless
+  document.getElementById('confirmed-slot-text').textContent = selectedSlot.label + ' (West Africa Time)';
+  document.getElementById(`step-${currentStep}`).classList.remove('active');
+
+  // Mark all dots done
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById(`dot-${i}`).className = 'si-dot done';
+    const line = document.getElementById(`line-${i}`);
+    if (line) line.classList.add('done');
+  }
+  document.getElementById('progress-bar').style.width = '100%';
+  document.getElementById('step-5').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>

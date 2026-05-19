@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus — Deployment Schedule</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--ink:#07050F;--ink2:#0D0B1A;--gold:#C9A84C;--green:#1DB954;--red:#D94040;--white:#F0EDE8;--muted:rgba(240,237,232,0.38);--dim:rgba(240,237,232,0.07);--mono:'IBM Plex Mono',monospace;--body:'DM Sans',sans-serif;}
+body{background:var(--ink);color:var(--white);font-family:var(--body);min-height:100vh;padding:40px 32px;-webkit-font-smoothing:antialiased;}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;padding-bottom:20px;border-bottom:1px solid var(--dim);}
+.header-left{}
+.admin-tag{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:rgba(201,168,76,0.5);text-transform:uppercase;margin-bottom:6px;}
+.admin-h{font-family:var(--mono);font-size:18px;letter-spacing:2px;color:var(--white);}
+.header-right{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:2px;}
+
+.section-label{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:rgba(240,237,232,0.25);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+.section-label::after{content:'';flex:1;height:1px;background:var(--dim);}
+
+/* UPCOMING BOOKINGS */
+.bookings{display:flex;flex-direction:column;gap:6px;margin-bottom:40px;}
+.booking-item{display:flex;align-items:center;gap:16px;padding:14px 18px;background:var(--ink2);border:1px solid var(--dim);border-radius:2px;}
+.bi-slot{font-family:var(--mono);font-size:12px;color:var(--gold);width:180px;flex-shrink:0;}
+.bi-biz{font-size:13px;color:var(--white);flex:1;}
+.bi-contact{font-family:var(--mono);font-size:10px;color:var(--muted);flex:1;}
+.bi-industry{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:rgba(240,237,232,0.25);text-transform:uppercase;width:100px;flex-shrink:0;}
+.bi-status{font-family:var(--mono);font-size:8px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:2px;flex-shrink:0;}
+.bi-status.confirmed{background:rgba(29,185,84,0.08);border:1px solid rgba(29,185,84,0.2);color:var(--green);}
+.no-bookings{font-family:var(--mono);font-size:11px;color:rgba(240,237,232,0.2);letter-spacing:1px;padding:20px 0;}
+
+/* BLOCK SLOT FORM */
+.block-form{background:var(--ink2);border:1px solid var(--dim);border-radius:2px;padding:20px;margin-bottom:40px;display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;}
+.bf-field{display:flex;flex-direction:column;gap:6px;}
+.bf-label{font-family:var(--mono);font-size:9px;letter-spacing:2px;color:rgba(240,237,232,0.3);text-transform:uppercase;}
+.bf-input{padding:10px 14px;background:rgba(240,237,232,0.04);border:1px solid var(--dim);color:var(--white);font-family:var(--mono);font-size:12px;border-radius:2px;outline:none;}
+.bf-input:focus{border-color:rgba(201,168,76,0.35);}
+.bf-btn{padding:10px 20px;background:var(--red);color:var(--white);font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;border:none;cursor:pointer;border-radius:2px;transition:all 0.2s;}
+.bf-btn:hover{opacity:0.85;}
+.bf-btn.unblock{background:transparent;border:1px solid var(--dim);color:var(--muted);}
+.bf-btn.unblock:hover{border-color:rgba(240,237,232,0.2);color:var(--white);}
+
+/* BLOCKED SLOTS */
+.blocked-list{display:flex;flex-direction:column;gap:5px;margin-bottom:40px;}
+.blocked-item{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(217,64,64,0.06);border:1px solid rgba(217,64,64,0.15);border-radius:2px;}
+.bl-slot{font-family:var(--mono);font-size:11px;color:rgba(217,64,64,0.7);}
+.bl-remove{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(217,64,64,0.5);cursor:pointer;padding:4px 10px;border:1px solid rgba(217,64,64,0.2);border-radius:2px;background:transparent;transition:all 0.2s;}
+.bl-remove:hover{background:rgba(217,64,64,0.1);color:var(--red);}
+
+.msg{font-family:var(--mono);font-size:11px;padding:10px 16px;border-radius:2px;margin-bottom:16px;}
+.msg.ok{background:rgba(29,185,84,0.08);border:1px solid rgba(29,185,84,0.2);color:rgba(29,185,84,0.7);}
+.msg.err{background:rgba(217,64,64,0.08);border:1px solid rgba(217,64,64,0.2);color:rgba(217,64,64,0.7);}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="admin-tag">Admin · Nexus Response</div>
+    <div class="admin-h">DEPLOYMENT SCHEDULE</div>
+  </div>
+  <div class="header-right" id="clock">--:-- WAT</div>
+</div>
+
+<div id="msg-wrap"></div>
+
+<!-- UPCOMING BOOKINGS -->
+<div class="section-label">Upcoming Deployment Reviews</div>
+<div class="bookings" id="bookings-list">
+  <div class="no-bookings">Loading...</div>
+</div>
+
+<!-- BLOCK A SLOT -->
+<div class="section-label">Block a Slot</div>
+<div class="block-form">
+  <div class="bf-field">
+    <label class="bf-label">Date</label>
+    <input class="bf-input" type="date" id="block-date">
+  </div>
+  <div class="bf-field">
+    <label class="bf-label">Time (WAT)</label>
+    <select class="bf-input" id="block-time" style="cursor:pointer;">
+      <option value="09:00">9:00 AM</option>
+      <option value="11:00">11:00 AM</option>
+      <option value="14:00">2:00 PM</option>
+      <option value="16:00">4:00 PM</option>
+      <option value="10:00">10:00 AM (Sat)</option>
+      <option value="12:00">12:00 PM (Sat)</option>
+    </select>
+  </div>
+  <button class="bf-btn" onclick="blockSlot()">Block This Slot</button>
+</div>
+
+<!-- BLOCKED SLOTS -->
+<div class="section-label">Currently Blocked</div>
+<div class="blocked-list" id="blocked-list">
+  <div class="no-bookings">Loading...</div>
+</div>
+
+<script>
+// Set clock
+setInterval(() => {
+  const d = new Date();
+  const wat = new Date(d.getTime() + 60*60*1000);
+  document.getElementById('clock').textContent =
+    wat.toUTCString().split(' ')[4].substring(0,5) + ' WAT';
+}, 1000);
+
+// Get admin key from URL
+const key = new URLSearchParams(window.location.search).get('key') || '';
+
+async function loadData() {
+  try {
+    const [appts, blocked] = await Promise.all([
+      fetch(`/api/appointments?key=${key}`).then(r=>r.json()),
+      fetch(`/api/blocked-slots?key=${key}`).then(r=>r.json())
+    ]);
+    renderBookings(appts.appointments || []);
+    renderBlocked(blocked.blocked || []);
+  } catch(e) {
+    showMsg('Failed to load data. Check your admin key.', 'err');
+  }
+}
+
+function renderBookings(list) {
+  const el = document.getElementById('bookings-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="no-bookings">No deployment reviews booked yet.</div>';
+    return;
+  }
+  el.innerHTML = list.map(a => `
+    <div class="booking-item">
+      <div class="bi-slot">📅 ${a.slot_label}</div>
+      <div class="bi-biz">${a.business_name}</div>
+      <div class="bi-contact">${a.contact_name} · ${a.contact_email}</div>
+      <div class="bi-industry">${a.industry}</div>
+      <div class="bi-status confirmed">Confirmed</div>
+    </div>`).join('');
+}
+
+function renderBlocked(list) {
+  const el = document.getElementById('blocked-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="no-bookings">No slots currently blocked.</div>';
+    return;
+  }
+  el.innerHTML = list.map(b => `
+    <div class="blocked-item">
+      <div class="bl-slot">⛔ ${b.slot_date} · ${formatTime(b.slot_time)}</div>
+      <button class="bl-remove" onclick="unblockSlot('${b.id}')">Remove Block</button>
+    </div>`).join('');
+}
+
+function formatTime(t) {
+  const [h,m] = t.split(':').map(Number);
+  const ap = h>=12?'PM':'AM';
+  return `${h%12||12}:${m.toString().padStart(2,'0')} ${ap}`;
+}
+
+async function blockSlot() {
+  const date = document.getElementById('block-date').value;
+  const time = document.getElementById('block-time').value;
+  if (!date) { showMsg('Please select a date.', 'err'); return; }
+  try {
+    const fd = new FormData();
+    fd.append('date', date); fd.append('time', time); fd.append('key', key);
+    const r = await fetch('/api/block-slot', {method:'POST',body:fd});
+    const d = await r.json();
+    if (d.success) { showMsg('Slot blocked.', 'ok'); loadData(); }
+    else showMsg('Failed to block slot.', 'err');
+  } catch(e) { showMsg('Error.', 'err'); }
+}
+
+async function unblockSlot(id) {
+  try {
+    const fd = new FormData();
+    fd.append('id', id); fd.append('key', key);
+    const r = await fetch('/api/unblock-slot', {method:'POST',body:fd});
+    const d = await r.json();
+    if (d.success) { showMsg('Slot unblocked.', 'ok'); loadData(); }
+  } catch(e) { showMsg('Error.', 'err'); }
+}
+
+function showMsg(text, type) {
+  const el = document.getElementById('msg-wrap');
+  el.innerHTML = `<div class="msg ${type}">${text}</div>`;
+  setTimeout(() => el.innerHTML = '', 3000);
+}
+
+loadData();
+</script>
+</body>
+</html>
